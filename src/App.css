@@ -1,69 +1,202 @@
-.App {
-  text-align: center;
+.app {
+    min-height:100vh;
+    background: #cacadc;
 }
 
-.nav-bar{
-  background-color: #919cad;
+.search-row {
+    margin-top: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
 }
 
-.loan-list-header{
-  display: flex;
-  flex-direction: row;
+.search-row > .button {
+    margin-block: 0;
+    margin-left: 3px;
+}
+.login-form{
+    background-color: #f3f8fd;
+    padding: 5vh;
+    border: 1px solid;
+    border-radius: 1vh;
 }
 
-.loan-list-header>*{
-  margin-top: auto;
-  margin-bottom: auto;
-  border-right: 1px solid black;
-  height: 100%;
-  width: 100%;
-  justify-content: center;
-  display: flex;
-  align-items: center;
+.login-form > img{
+    width: 20vw;
+    margin-bottom: 2vh;
 }
 
-.nav-bar > a{
-  display: inline-grid;
-  text-decoration: none;
-  align-content: center;
-  align-items: center;
-  justify-items: center;
-  width: 20vw;
-  border-right: 1px solid black;
+.login-form > .form-input > input{
+    width: 100%;
 }
 
-.nav-bar > a.active{
-  background-color: #13b4b4;
+div > .button{
+    font-weight: normal;
 }
 
-.item , .loan {
-  display:flex;
-  height: 15vh;
-  background-color: #c8d8ef;
-  margin-top: 1vh;
-  align-content: center;
-  border-top: 1px solid black;
-  border-bottom: 1px solid black;
-}
-.item > *, .loan > *{
-  margin-top: auto;
-  margin-bottom: auto;
-  border-right: 1px solid black;
-  height: 100%;
-  width: 100%;
-  justify-content: center;
-  display: flex;
-  align-items: center;
+.button {
+    justify-content: center;
+    display: flex;
+    padding: 7px;
+    background-color: #8abbfc;
+    border: 1px solid;
+    box-shadow: 1px 1px 0px 0px;
+    cursor: pointer;
+    transition-property: font-weight;
+    transition-duration: 0.3s;
+    margin-block: 5px;
+
+    border-radius: 0.3vh;
 }
 
-
-.item > .image-wrapper{
-  margin-top: 0;
-  margin-bottom: 0;
+.button:hover {
+    font-weight: bold;
 }
 
-.image-wrapper > img{
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+.loan-list-header {
+    display: flex;
+    flex-direction: row;
+}
+
+.loan-list-header > * {
+    margin-top: auto;
+    margin-bottom: auto;
+    border-right: 1px solid black;
+    height: 100%;
+    width: 100%;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+}
+.bar-logo{
+    padding: 4px;
+}
+
+.nav-bar {
+    background-color: #8abbfc;
+    justify-self: start;
+    align-self: start;
+    display: flex;
+    border: 1px solid black;
+    height: 7vh;
+
+}
+
+.nav-bar > a {
+    font-size: 120%;
+    padding-block: 7px;
+    display: inline-grid;
+    text-decoration: none;
+    align-content: center;
+    align-items: center;
+    justify-items: center;
+    width: 15vw;
+    color: black;
+    transition-property: font-weight;
+    transition-duration: 0.3s;
+}
+
+.item-list, .loan-list {
+    overflow: auto;
+    padding-inline: 1vw;
+    border-left: 1px solid;
+}
+.desc-txt-area{
+    width:70%
+}
+
+.react-datetime-picker{
+    margin-left: 50px;
+}
+
+.form-input{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.item-borrow-form-wrp, .profile-wrapper,.add-item-form-wrp, .loan-info-wrp, .login-form-wrp{
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    height: 100%;
+}
+
+.item-borrow-form-wrp > *, .profile-wrapper > *, .add-item-form-wrp > *, .loan-info-wrp > *, .login-form-wrp >*{
+    font-weight: bold;
+}
+
+.item-borrow-form, .profile-form, .add-item-form,.loan-info, .login-form{
+    margin-top: 5vh;
+}
+
+.profile-wrapper > .profile-setting {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.profile-setting > div{
+    font-weight: normal;
+}
+
+.profile-setting > div{
+    cursor: pointer;
+}
+
+.nav-bar >a:hover{
+    font-weight: bold;
+}
+
+.nav-bar > a.active {
+    font-weight: bold;
+    font-size: 130%;
+}
+
+.nav-bar > :last-child{
+    margin-left: auto;
+}
+
+.item, .loan {
+    display: flex;
+    height: 15vh;
+    background-color: #c8d8ef;
+    margin-top: 1vh;
+    align-content: center;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    text-overflow: ellipsis;
+}
+
+.item > div {
+    overflow: auto;
+}
+
+.item > *, .loan > * {
+    margin-top: auto;
+    margin-bottom: auto;
+    border-right: 1px solid black;
+    height: 100%;
+    width: 100%;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+}
+
+.item, .loan{
+    border: 1px solid black;
+}
+
+.item > .image-wrapper {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.image-wrapper > img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }

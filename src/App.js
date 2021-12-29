@@ -3,6 +3,7 @@ import {useEffect, useState} from "react";
 import axios from "axios";
 import {Routes, Route, Navigate, useNavigate, NavLink, useParams} from "react-router-dom";
 import DateTimePicker from 'react-datetime-picker';
+import logo from "./uniborrow.svg";
 
 const LOANS_API = 'http://35.223.79.242/uniborrow-loans/v1/loans'
 const USERS_API = 'http://35.223.79.242/uniborrow-users/v1/users'
@@ -10,15 +11,21 @@ const ITEMS_API = 'http://35.223.79.242/uniborrow-items/v1/items'
 
 function LoginForm(props) {
     const [userInput, setUserInput] = useState("")
+    const navigate = useNavigate()
 
     function submit() {
         props.onSubmit(userInput)
     }
 
-    return <div><input type="text" value={userInput} onChange={e => setUserInput(e.target.value)}/>
-        <div onClick={() => submit()}>Submit</div>
+    return <div className="login-form-wrp">
+        <div className="login-form">
+            <img src={logo}></img>
+            <div>UserId:</div>
+            <div className="form-input"><input type="text" value={userInput} onChange={e => setUserInput(e.target.value)}/></div>
+            <div className="button" onClick={() => submit()}>Submit</div>
+            <div className="button" onClick={() => navigate("/new")}>New User</div>
+        </div>
     </div>
-
 }
 
 function Item(props) {
@@ -37,8 +44,37 @@ function ItemList(props) {
     const [items, setItems] = useState([])
     const [searchParam, setSearchParam] = useState("")
 
-    function fetchData(){
-        axios.get(ITEMS_API+"/?filter=title:LIKE:%"+searchParam+"%,description:LIKE:%"+searchParam+"%").then(response => setItems(response.data))
+    const testItems = [{
+        "category": "Books",
+        "description": "Novel written by Leo Tolstoy.",
+        "itemId": 1,
+        "score": 1325,
+        "status": "Available",
+        "title": "War and Peace",
+        "uri": "https://images-na.ssl-images-amazon.com/images/I/51J1nb00FLL._SX330_BO1,204,203,200_.jpg",
+        "userId": 1
+    }, {
+        "category": "Vehicle",
+        "description": "The ultimate bike for mountain off-road adventures! The most successful \"solid\" with a new \"racing\" geometry for even more power, stability and precision!",
+        "itemId": 2,
+        "score": 1325,
+        "status": "Available",
+        "title": "Mountain bike Olympia F1",
+        "uri": "https://bike-shop.si/content/images/thumbs/0002065_gorsko-kolo-lf-sonora-29.jpeg",
+        "userId": 1
+    }, {
+        "category": "Musical Instruments",
+        "description": "The Yamaha F310 is everything youve been looking for. It combines superb value for money with Yamahas long heritage of creating high-quality instruments. This F310 Acoustic is no exception to their meticulous standards.",
+        "itemId": 3,
+        "score": 1325,
+        "status": "Available",
+        "title": "Guitar",
+        "uri": "https://d1aeri3ty3izns.cloudfront.net/media/68/681431/1200/preview.jpg",
+        "userId": 1
+    }]
+
+    function fetchData() {
+        axios.get(ITEMS_API + "/?filter=title:LIKE:%" + searchParam + "%,description:LIKE:%" + searchParam + "%").then(response => setItems(response.data)).catch(re => setItems(testItems))
     }
 
     useEffect(() => {
@@ -51,9 +87,12 @@ function ItemList(props) {
     }
 
     return <div className="item-list">
-        <input type="text" onChange={e => setSearchParam(e.target.value)} value={searchParam}/>
+        <div className="search-row"><input type="text" onChange={e => setSearchParam(e.target.value)}
+                                           value={searchParam}/>
+            <div className="button" onClick={() => fetchData()}>Search</div>
+        </div>
         {items.map(item => <Item onBorrow={() => onBorrow(item)} item={item}/>)}
-        <div onClick={() => navigate("/items/new")}>Add Item</div>
+        <div className="button" onClick={() => navigate("/items/new")}>Add New Item</div>
     </div>
 }
 
@@ -70,20 +109,28 @@ function ItemBorrowForm(props) {
         axios.get(ITEMS_API + "/" + itemId).then(res => setItem(res.data)).catch(e => alert(e.toString()))
     }, [])
 
-    return <div className="item-borrow-form">
-        <div> Description <input onChange={e => setDescription(e.target.value)} value={description} type="text"/></div>
-        <div>From <DateTimePicker onChange={setFromDate} value={fromDate}/></div>
-        <div>To <DateTimePicker onChange={setToDate} value={toDate}/></div>
-        <div onClick={() => props.submitLoanProposal(fromDate, toDate, description, item)}>Submit</div>
-        <BackButton/>
+    return <div className="item-borrow-form-wrp">
+        <div className="item-borrow-form">
+            <div className="form-input">Description <textarea className="desc-txt-area"
+                                                              onChange={e => setDescription(e.target.value)}
+                                                              value={description} type="text"/>
+            </div>
+            <div className="form-input">From <DateTimePicker onChange={setFromDate} value={fromDate}/></div>
+            <div className="form-input">To <DateTimePicker onChange={setToDate} value={toDate}/></div>
+            <div className="button"
+                 onClick={() => props.submitLoanProposal(fromDate, toDate, description, item)}>Submit
+            </div>
+            <BackButton/></div>
     </div>
 }
 
 function NavBar() {
     return <div className="nav-bar">
+        <img className="bar-logo" src={logo}></img>
         <NavLink to="/items">Items</NavLink>
         <NavLink to="/loans">My Loans</NavLink>
         <NavLink to="/profile">My Profile</NavLink>
+        <NavLink to="/logout">Logout</NavLink>
     </div>
 }
 
@@ -101,7 +148,7 @@ function LoanPreview(props) {
 function BackButton() {
     const navigate = useNavigate()
 
-    return <div onClick={() => navigate(-1)}>Back</div>
+    return <div className="button" onClick={() => navigate(-1)}>Back</div>
 }
 
 function Loan(props) {
@@ -124,34 +171,94 @@ function Loan(props) {
 
     }
 
-    return <div>
-        <div>
+    return <div className="loan-info-wrp">
+        <div className="loan-info">
             Loan Info
             <div>{loan.itemId}</div>
             <div>{loan.description}</div>
             <div>{loan.startTime && loan.startTime.substr(0, 10)} - {loan.endTime && loan.endTime.substr(0, 10)}</div>
             <div>{loan.acceptedState}</div>
         </div>
-        <div>
+        <div className="loan-info">
             Item Info
             <div>{item.title}</div>
             <div className="image-wrapper"><img src={item.uri}/></div>
             <div>{item.description}</div>
             <div>{item.status}</div>
         </div>
-        {(loan.acceptedState === "PENDING") && <div onClick={acceptLoan}>
+        {(loan.acceptedState === "PENDING") && <div className="button" onClick={acceptLoan}>
             Accept Loan
         </div>}
-        {<div onClick={proposeNew}>Propose New</div>}
+        {<div className="button" onClick={proposeNew}>Propose New</div>}
     </div>
 }
 
 function LoansList(props) {
     const userId = props.userId
     const [loans, setLoans] = useState([])
-
+    const testLoans = [{
+        "acceptedState": "ACCEPTED",
+        "description": "This is a very good loan.",
+        "endTime": "2006-01-01T17:36:38Z",
+        "fromId": 1280,
+        "id": 1,
+        "itemId": 123213,
+        "proposedById": 1280,
+        "startTime": "2006-01-01T15:36:38Z",
+        "toId": 1325
+    }, {
+        "acceptedState": "REJECTED",
+        "description": "This is a very good loan.",
+        "endTime": "2006-01-01T17:36:38Z",
+        "fromId": 12,
+        "id": 2,
+        "itemId": 1,
+        "proposedById": 1280,
+        "startTime": "2006-01-01T15:36:38Z",
+        "toId": 1325
+    }, {
+        "acceptedState": "ACCEPTED",
+        "description": "sdas",
+        "endTime": "2021-12-29T14:40:44.252Z",
+        "fromId": 1,
+        "id": 4,
+        "itemId": 1,
+        "proposedById": 2,
+        "startTime": "2021-12-29T14:40:44.252Z",
+        "toId": 2
+    }, {
+        "acceptedState": "ACCEPTED",
+        "description": "This is a very good loan.",
+        "endTime": "2006-01-01T17:36:38Z",
+        "fromId": 12,
+        "id": 3,
+        "itemId": 12,
+        "proposedById": 25,
+        "startTime": "2006-01-01T15:36:38Z",
+        "toId": 25
+    }, {
+        "acceptedState": "ACCEPTED",
+        "description": "waaa",
+        "endTime": "2021-12-29T15:46:50.580Z",
+        "fromId": 1,
+        "id": 5,
+        "itemId": 3,
+        "proposedById": 2,
+        "startTime": "2021-12-29T15:46:50.580Z",
+        "toId": 2
+    }, {
+        "acceptedState": "PENDING",
+        "description": "I really want it dude please.",
+        "endTime": "2021-12-31T17:24:41.096Z",
+        "fromId": 1,
+        "id": 6,
+        "itemId": 2,
+        "proposedById": 3,
+        "startTime": "2021-12-29T17:24:41.096Z",
+        "toId": 3
+    }]
     useEffect(() => {
-        axios.get(LOANS_API+"?filter=fromId:EQ:"+userId+",toId:EQ:"+userId).then(response => setLoans(response.data))
+        axios.get(LOANS_API + "?filter=fromId:EQ:" + userId + ",toId:EQ:" + userId).then(response => setLoans(response.data)).catch(e => setLoans(testLoans))
     }, [])
 
     return <div className="loan-list">
@@ -179,27 +286,32 @@ function Profile(props) {
         axios.patch(USERS_API + "/" + props.userId, user).then(() => navigate("/")).catch(res => alert(res.toString()))
     }
 
-    return <div>
-        <div>First Name: <div onClick={() => setEditingFName(true)}>{editingFName ?
-            <input type="text" value={user.firstName} onChange={e => {
-                const newUser = JSON.parse(JSON.stringify(user))
-                newUser.firstName = e.target.value
-                setUser(newUser)
-            }}/> : user.firstName}</div></div>
-        <div>Last Name: <div onClick={() => setEditingLName(true)}>{editingLName ?
-            <input type="text" value={user.lastName} onChange={e => {
-                const newUser = JSON.parse(JSON.stringify(user))
-                newUser.lastName = e.target.value
-                setUser(newUser)
-            }}/> : user.lastName}</div></div>
-        <div>Email: <div onClick={() => setEditingEmail(true)}>{editingEmail ?
-            <input type="text" value={user.email} onChange={e => {
-                const newUser = JSON.parse(JSON.stringify(user))
-                newUser.email = e.target.value
-                setUser(newUser)
-            }}/> : user.email}</div></div>
-        {(editingFName || editingLName || editingEmail) && <div onClick={() => confirmChanges()}>Confirm changes</div>}
-        <BackButton/>
+    return <div className="profile-wrapper">
+        <div className="profile-form">
+            <div className="profile-setting form-input">First Name: <div
+                onClick={() => setEditingFName(true)}>{editingFName ?
+                <input type="text" value={user.firstName} onChange={e => {
+                    const newUser = JSON.parse(JSON.stringify(user))
+                    newUser.firstName = e.target.value
+                    setUser(newUser)
+                }}/> : user.firstName}</div></div>
+            <div className="profile-setting form-input">Last Name: <div
+                onClick={() => setEditingLName(true)}>{editingLName ?
+                <input type="text" value={user.lastName} onChange={e => {
+                    const newUser = JSON.parse(JSON.stringify(user))
+                    newUser.lastName = e.target.value
+                    setUser(newUser)
+                }}/> : user.lastName}</div></div>
+            <div className="profile-setting form-input">Email: <div
+                onClick={() => setEditingEmail(true)}>{editingEmail ?
+                <input type="text" value={user.email} onChange={e => {
+                    const newUser = JSON.parse(JSON.stringify(user))
+                    newUser.email = e.target.value
+                    setUser(newUser)
+                }}/> : user.email}</div></div>
+            {(editingFName || editingLName || editingEmail) &&
+            <div className="button" onClick={() => confirmChanges()}>Confirm changes</div>}
+        </div>
     </div>
 }
 
@@ -249,13 +361,19 @@ function NewItemForm(props) {
         axios.post(ITEMS_API, item).then(() => navigate("/items")).catch(e => alert(e.toString()))
     }
 
-    return <div>
-        <div>Category: <input type="text" value={category} onChange={e => setCategory(e.target.value)}/></div>
-        <div>Description: <input type="text" value={description} onChange={e => setDescription(e.target.value)}/></div>
-        <div>Title: <input type="text" value={title} onChange={e => setTitle(e.target.value)}/></div>
-        <div>Uri: <input type="text" value={uri} onChange={e => setUri(e.target.value)}/></div>
-        <div onClick={newItem}>Add Item</div>
-        <BackButton/>
+    return <div className="add-item-form-wrp">
+        <div className="add-item-form">
+            <div className="form-input">Title: <input type="text" value={title}
+                                                      onChange={e => setTitle(e.target.value)}/></div>
+            <div className="form-input">Category: <input type="text" value={category}
+                                                         onChange={e => setCategory(e.target.value)}/></div>
+            <div className="form-input">Description: <textarea type="text" value={description}
+                                                               onChange={e => setDescription(e.target.value)}/></div>
+            <div className="form-input">Image url: <input type="text" value={uri}
+                                                          onChange={e => setUri(e.target.value)}/></div>
+            <div className="button" onClick={newItem}>Add New Item</div>
+            <BackButton/>
+        </div>
     </div>
 }
 
@@ -301,17 +419,17 @@ function App() {
         }
     }
 
-    function logout() {
+    function Logout() {
         setUser(null)
         navigate('/')
+        return <Navigate to="/"/>
     }
 
     return (
-        <div>{userId ? <NavBar/> : null}
+        <div className="app">{userId ? <NavBar/> : null}
             <Routes>
                 <Route path="/" element={userId ? <Navigate to="/items"/> :
                     <div><LoginForm onSubmit={id => setUser(id)}/>
-                        <div onClick={() => navigate("/new")}>New User</div>
                     </div>}/>
                 <Route path="/new" element={<NewUserForm onUserCreated={setUser}/>}/>
                 <Route path="/items" element={<ItemList onBorrow={setBorrowingItem}/>}/>
@@ -321,8 +439,8 @@ function App() {
                 <Route path="/loans" element={<LoansList userId={userId}/>}/>
                 <Route path="/loans/:loanId" element={<Loan/>}/>
                 <Route path="/profile" element={<Profile userId={userId}/>}/>
+                <Route path="/logout" element={<Logout/>}/>
             </Routes>
-            {userId ? <div onClick={logout}>Logout</div> : null}
         </div>
     );
 }
