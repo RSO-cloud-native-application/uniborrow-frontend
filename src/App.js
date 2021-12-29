@@ -35,8 +35,14 @@ function Item(props) {
 function ItemList(props) {
     const navigate = useNavigate()
     const [items, setItems] = useState([])
+    const [searchParam, setSearchParam] = useState("")
+
+    function fetchData(){
+        axios.get(ITEMS_API+"/?filter=title:LIKE:%"+searchParam+"%,description:LIKE:%"+searchParam+"%").then(response => setItems(response.data))
+    }
+
     useEffect(() => {
-        axios.get(ITEMS_API).then(response => setItems(response.data))
+        fetchData()
     }, [])
 
     function onBorrow(item) {
@@ -45,6 +51,7 @@ function ItemList(props) {
     }
 
     return <div className="item-list">
+        <input type="text" onChange={e => setSearchParam(e.target.value)} value={searchParam}/>
         {items.map(item => <Item onBorrow={() => onBorrow(item)} item={item}/>)}
         <div onClick={() => navigate("/items/new")}>Add Item</div>
     </div>
@@ -76,7 +83,7 @@ function NavBar() {
     return <div className="nav-bar">
         <NavLink to="/items">Items</NavLink>
         <NavLink to="/loans">My Loans</NavLink>
-        <NavLink to="/profile">Profile</NavLink>
+        <NavLink to="/profile">My Profile</NavLink>
     </div>
 }
 
@@ -139,11 +146,12 @@ function Loan(props) {
     </div>
 }
 
-function LoansList() {
+function LoansList(props) {
+    const userId = props.userId
     const [loans, setLoans] = useState([])
 
     useEffect(() => {
-        axios.get(LOANS_API).then(response => setLoans(response.data))
+        axios.get(LOANS_API+"?filter=fromId:EQ:"+userId+",toId:EQ:"+userId).then(response => setLoans(response.data))
     }, [])
 
     return <div className="loan-list">
@@ -310,7 +318,7 @@ function App() {
                 <Route path="/items/new" element={<NewItemForm userId={userId}/>}/>
                 <Route path="/items/:itemId"
                        element={<ItemBorrowForm submitLoanProposal={submitLoanProposal}/>}/>
-                <Route path="/loans" element={<LoansList/>}/>
+                <Route path="/loans" element={<LoansList userId={userId}/>}/>
                 <Route path="/loans/:loanId" element={<Loan/>}/>
                 <Route path="/profile" element={<Profile userId={userId}/>}/>
             </Routes>
