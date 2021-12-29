@@ -46,6 +46,7 @@ function ItemList(props) {
 
     return <div className="item-list">
         {items.map(item => <Item onBorrow={() => onBorrow(item)} item={item}/>)}
+        <div onClick={() => navigate("/items/new")}>Add Item</div>
     </div>
 }
 
@@ -58,8 +59,8 @@ function ItemBorrowForm(props) {
     const [toDate, setToDate] = useState(new Date())
     const [description, setDescription] = useState("")
 
-    useEffect(()=>{
-        axios.get(ITEMS_API + "/" + itemId).then(res=> setItem(res.data)).catch(e=>alert(e.toString()))
+    useEffect(() => {
+        axios.get(ITEMS_API + "/" + itemId).then(res => setItem(res.data)).catch(e => alert(e.toString()))
     }, [])
 
     return <div className="item-borrow-form">
@@ -82,7 +83,7 @@ function NavBar() {
 function LoanPreview(props) {
     const loan = props.loan
     const navigate = useNavigate()
-    return <div onClick={()=> navigate("/loans" + props.loan.id)} className="loan">
+    return <div onClick={() => navigate("/loans/" + props.loan.id)} className="loan">
         <div>{loan.itemId}</div>
         <div>{loan.description}</div>
         <div>{loan.startTime.substr(0, 10)} - {loan.endTime.substr(0, 10)}</div>
@@ -90,28 +91,29 @@ function LoanPreview(props) {
     </div>
 }
 
-function BackButton(){
+function BackButton() {
     const navigate = useNavigate()
 
-    return <div onClick={()=> navigate(-1)}>Back</div>
+    return <div onClick={() => navigate(-1)}>Back</div>
 }
 
-function Loan(props){
+function Loan(props) {
     const {loanId} = useParams()
     const [loan, setLoan] = useState({})
     const [item, setItem] = useState({})
     const navigate = useNavigate()
-    useEffect(()=>{
-        axios.get(LOANS_API+"/"+ loanId).then(res=> {
+    useEffect(() => {
+        axios.get(LOANS_API + "/" + loanId).then(res => {
             axios.get(ITEMS_API + "/" + res.data.itemId).then(res => setItem(res.data))
-            setLoan(res.data)})
-    },[])
+            setLoan(res.data)
+        })
+    }, [])
 
-    function acceptLoan(){
-        axios.post(LOANS_API + loanId + "/" + "accept").then(e=> navigate("/loans"))
+    function acceptLoan() {
+        axios.post(LOANS_API + "/" + loanId + "/" + "accept").then(e => navigate("/loans"))
     }
 
-    function proposeNew(){
+    function proposeNew() {
 
     }
 
@@ -120,7 +122,7 @@ function Loan(props){
             Loan Info
             <div>{loan.itemId}</div>
             <div>{loan.description}</div>
-            <div>{loan.startTime.substr(0, 10)} - {loan.endTime.substr(0, 10)}</div>
+            <div>{loan.startTime && loan.startTime.substr(0, 10)} - {loan.endTime && loan.endTime.substr(0, 10)}</div>
             <div>{loan.acceptedState}</div>
         </div>
         <div>
@@ -220,13 +222,42 @@ function NewUserForm(props) {
     </div>
 }
 
+function NewItemForm(props) {
+    const navigate = useNavigate()
+
+    const [category, setCategory] = useState("")
+    const [description, setDescription] = useState("")
+    const [title, setTitle] = useState("")
+    const [uri, setUri] = useState("")
+
+    function newItem() {
+        const item = {
+            "category": category,
+            "description": description,
+            "userId": props.userId,
+            "title": title,
+            "uri": uri
+        }
+        axios.post(ITEMS_API, item).then(() => navigate("/items")).catch(e => alert(e.toString()))
+    }
+
+    return <div>
+        <div>Category: <input type="text" value={category} onChange={e => setCategory(e.target.value)}/></div>
+        <div>Description: <input type="text" value={description} onChange={e => setDescription(e.target.value)}/></div>
+        <div>Title: <input type="text" value={title} onChange={e => setTitle(e.target.value)}/></div>
+        <div>Uri: <input type="text" value={uri} onChange={e => setUri(e.target.value)}/></div>
+        <div onClick={newItem}>Add Item</div>
+        <BackButton/>
+    </div>
+}
+
 function App() {
     let localUserId = localStorage.getItem('userId')
     const navigate = useNavigate();
     const [userId, setUserId] = useState(localUserId)
     const [borrowingItem, setBorrowingItem] = useState(null)
 
-    function submitLoanProposal(from, to, desc, item) {
+    function submitLoanProposal(from, to, desc) {
         const params = {
             "description": desc,
             "endTime": to.toISOString(),
@@ -276,10 +307,11 @@ function App() {
                     </div>}/>
                 <Route path="/new" element={<NewUserForm onUserCreated={setUser}/>}/>
                 <Route path="/items" element={<ItemList onBorrow={setBorrowingItem}/>}/>
+                <Route path="/items/new" element={<NewItemForm userId={userId}/>}/>
                 <Route path="/items/:itemId"
                        element={<ItemBorrowForm submitLoanProposal={submitLoanProposal}/>}/>
-                <Route path="/loans/:loanId" element={<Loan/>}/>
                 <Route path="/loans" element={<LoansList/>}/>
+                <Route path="/loans/:loanId" element={<Loan/>}/>
                 <Route path="/profile" element={<Profile userId={userId}/>}/>
             </Routes>
             {userId ? <div onClick={logout}>Logout</div> : null}
