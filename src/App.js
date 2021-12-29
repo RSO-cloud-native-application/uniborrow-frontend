@@ -1,8 +1,12 @@
-import logo from './logo.svg';
 import './App.css';
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import axios from "axios";
-import {Link, Routes, Route, Navigate, useParams, useNavigate, Switch, NavLink} from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate, NavLink} from "react-router-dom";
+import DateTimePicker from 'react-datetime-picker';
+
+const LOANS_API = 'http://35.223.79.242/uniborrow-loans/v1/loans'
+const USERS_API = 'http://35.223.79.242/uniborrow-users/v1/users'
+const ITEMS_API = 'http://35.223.79.242/uniborrow-items/v1/items'
 
 function LoginForm(props) {
     const [userInput, setUserInput] = useState("")
@@ -30,37 +34,13 @@ function Item(props) {
 
 function ItemList(props) {
     const navigate = useNavigate()
-
-    const items = [{
-        "category": "Books",
-        "description": "Novel written by Leo Tolstoy.",
-        "imageId": 1,
-        "score": 1325,
-        "status": "Available",
-        "title": "War and Peace",
-        "uri": "https://images-na.ssl-images-amazon.com/images/I/51J1nb00FLL._SX330_BO1,204,203,200_.jpg",
-        "userId": 1
-    }, {
-        "category": "Vehicle",
-        "description": "The ultimate bike for mountain off-road adventures! The most successful \"solid\" with a new \"racing\" geometry for even more power, stability and precision!",
-        "imageId": 2,
-        "score": 1325,
-        "status": "Available",
-        "title": "Mountain bike Olympia F1",
-        "uri": "https://bike-shop.si/content/images/thumbs/0002065_gorsko-kolo-lf-sonora-29.jpeg",
-        "userId": 1
-    }, {
-        "category": "Books",
-        "description": "Novel written by Leo Tolstoy.",
-        "imageId": 3,
-        "score": 1325,
-        "status": "Available",
-        "title": "War and Peace",
-        "uri": "https://images-na.ssl-images-amazon.com/images/I/51J1nb00FLL._SX330_BO1,204,203,200_.jpg",
-        "userId": 1
-    }]
+    const [items, setItems] = useState([])
+    useEffect(() => {
+        axios.get(ITEMS_API).then(response => setItems(response.data))
+    }, [])
 
     function onBorrow(item) {
+        props.onBorrow(item)
         navigate("" + item.imageId)
     }
 
@@ -71,18 +51,16 @@ function ItemList(props) {
 
 
 function ItemBorrowForm(props) {
-    const {itemId} = useParams();
     const navigate = useNavigate();
-    const [fromDate, setFromDate] = useState(null)
-    const [toDate, setToDate] = useState(null)
+    const [fromDate, setFromDate] = useState(new Date())
+    const [toDate, setToDate] = useState(new Date())
     const [description, setDescription] = useState("")
 
     return <div className="item-borrow-form">
         <div> Description <input onChange={e => setDescription(e.target.value)} value={description} type="text"/></div>
-        <div>From <input onChange={e => setFromDate(e.target.value)} value={fromDate} type="datetime-local"/></div>
-        <div>To <input onChange={e => setToDate(e.target.value)} value={toDate} type="datetime-local"/></div>
-        <div onClick={() => props.submitLoanProposal(fromDate, toDate, description, itemId)}>Submit</div>
-
+        <div>From <DateTimePicker onChange={setFromDate} value={fromDate}/></div>
+        <div>To <DateTimePicker onChange={setToDate} value={toDate}/></div>
+        <div onClick={() => props.submitLoanProposal(fromDate, toDate, description)}>Submit</div>
         <div onClick={() => navigate(-1)}>Back</div>
     </div>
 }
@@ -100,102 +78,41 @@ function Loan(props) {
     return <div className="loan">
         <div>{loan.itemId}</div>
         <div>{loan.description}</div>
-        <div>{loan.startTime.substr(0,10)} - {loan.endTime.substr(0,10)}</div>
+        <div>{loan.startTime.substr(0, 10)} - {loan.endTime.substr(0, 10)}</div>
         <div>{loan.acceptedState}</div>
     </div>
 }
 
 function LoansList() {
-    const loans = [{
-        "acceptedState": "ACCEPTED",
-        "description": "This is a very good loan.",
-        "endTime": "2006-01-01T17:36:38Z",
-        "fromId": 1280,
-        "id": 1,
-        "itemId": 123213,
-        "proposedById": 1280,
-        "startTime": "2006-01-01T15:36:38Z",
-        "toId": 1325
-    }, {
-        "acceptedState": "REJECTED",
-        "description": "This is a very good loan.",
-        "endTime": "2006-01-01T17:36:38Z",
-        "fromId": 12,
-        "id": 2,
-        "itemId": 1,
-        "proposedById": 1280,
-        "startTime": "2006-01-01T15:36:38Z",
-        "toId": 1325
-    }, {
-        "acceptedState": "PENDING",
-        "description": "This is a very good loan.",
-        "endTime": "2006-01-01T17:36:38Z",
-        "fromId": 12,
-        "id": 3,
-        "itemId": 12,
-        "proposedById": 25,
-        "startTime": "2006-01-01T15:36:38Z",
-        "toId": 25
-    }, {
-        "acceptedState": "PENDING",
-        "description": "Bi slo morda za kak dan vec?",
-        "endTime": "2019-08-18T14:38:40.108Z",
-        "fromId": 1,
-        "id": 4,
-        "itemId": 2,
-        "proposedById": 1,
-        "startTime": "2019-08-18T14:38:40.108Z",
-        "toId": 2
-    }, {
-        "acceptedState": "PENDING",
-        "description": "Bi slo morda za kak dan vec?",
-        "endTime": "2019-08-18T14:38:40.108Z",
-        "fromId": 1,
-        "id": 5,
-        "itemId": 2,
-        "proposedById": 1,
-        "startTime": "2019-08-18T14:38:40.108Z",
-        "toId": 2
-    }, {
-        "acceptedState": "PENDING",
-        "description": "Bi slo morda za kak dan vec?",
-        "endTime": "2019-08-18T14:38:40.108Z",
-        "fromId": 1,
-        "id": 6,
-        "itemId": 2,
-        "proposedById": 1,
-        "startTime": "2019-08-18T14:38:40.108Z",
-        "toId": 2
-    }, {
-        "acceptedState": "PENDING",
-        "description": "Bi slo morda za kak dan vec?",
-        "endTime": "2019-08-18T14:38:40.108Z",
-        "fromId": 1,
-        "id": 7,
-        "itemId": 2,
-        "proposedById": 1,
-        "startTime": "2019-08-18T14:38:40.108Z",
-        "toId": 2
-    }]
+    const [loans,setLoans] = useState([])
+
+    useEffect(()=>{
+        axios.get(LOANS_API).then(response => setLoans(response.data))
+    },[])
+
     return <div className="loan-list">
-        {loans.map(loan=><Loan loan={loan}/>)}
+        {loans.map(loan => <Loan loan={loan}/>)}
     </div>
 }
 
 function Profile(props) {
     const [user, setUser] = useState({
-        "email": "jane.smith@mail.com",
-        "firstName": "Jane",
-        "lastName": "Smith",
-        "userId": 3
+        "email": "Placeholder.Placeholder@mail.com",
+        "firstName": "Placeholder",
+        "lastName": "Placeholder",
+        "userId": 0
     })
     const navigate = useNavigate()
     const [editingFName, setEditingFName] = useState(false)
     const [editingLName, setEditingLName] = useState(false)
     const [editingEmail, setEditingEmail] = useState(false)
 
+    useEffect(()=>{
+        axios.get(USERS_API + "/" + props.userId).then(response => setUser(response.data))
+    },[])
+
     function confirmChanges() {
-        // send changes
+        axios.post(USERS_API, user).then(()=>navigate("/")).catch(res=> alert(res.toString()))
     }
 
     return <div>
@@ -222,30 +139,71 @@ function Profile(props) {
     </div>
 }
 
+function NewUserForm(props) {
+    const [fName, setFName] = useState("")
+    const [lName, setLName] = useState("")
+    const [email, setEmail] = useState("")
+    const navigate = useNavigate();
+
+    function createUser() {
+        const params = {
+            email: email,
+            firstName: fName,
+            lastName: lName
+        }
+        axios.post(USERS_API, params).then(e => props.onUserCreated(e.data.userId)).catch(e => alert(e.toString()))
+    }
+
+    return <div>
+        <div>First Name:<input type="text" onChange={e => setFName(e.target.value)} value={fName}/></div>
+        <div>Last Name:<input type="text" onChange={e => setLName(e.target.value)} value={lName}/></div>
+        <div>Email:<input type="text" onChange={e => setEmail(e.target.value)} value={email}/></div>
+        <div onClick={createUser}>Create</div>
+        <div onClick={() => navigate(-1)}>Back</div>
+    </div>
+}
+
 function App() {
     let localUserId = localStorage.getItem('userId')
     const navigate = useNavigate();
     const [userId, setUserId] = useState(localUserId)
-
-    const borrowingItem = useParams();
+    const [borrowingItem, setBorrowingItem] = useState(null)
 
     function submitLoanProposal(from, to, desc) {
-        axios.post('http://35.223.79.242/uniborrow-loans/v1/loans',
-            {
-                "description": desc,
-                "endTime": to,
-                "fromId": borrowingItem.userId,
-                "itemId": borrowingItem.imageId,
-                "proposedById": userId,
-                "startTime": from,
-                "toId": userId
-            },
-        ).catch(e => console.log(e))
+        const params = {
+            "description": desc,
+            "endTime": to.toISOString(),
+            "fromId": borrowingItem.userId,
+            "itemId": borrowingItem.imageId,
+            "proposedById": parseInt(userId),
+            "startTime": from.toISOString(),
+            "toId": parseInt(userId)
+        }
+        axios.post(LOANS_API, params)
+            .then(e => navigate(-1))
+            .catch(e => alert(e.toString()))
+    }
+
+    function checkUserExists(id) {
+        let exists = false;
+        axios.get(USERS_API + "/" + id)
+            .then(e => exists = true)
+        return exists
     }
 
     function setUser(id) {
-        localStorage.setItem('userId', id)
-        setUserId(id)
+        if (id != null) {
+            const userExists = checkUserExists(id)
+            if (userExists) {
+                localStorage.setItem('userId', id)
+                setUserId(id)
+            } else {
+                alert("User doesn't exist.")
+            }
+        } else {
+            setUserId(null)
+            localStorage.setItem('userId', id)
+        }
     }
 
     function logout() {
@@ -256,8 +214,12 @@ function App() {
     return (
         <div>{userId ? <NavBar/> : null}
             <Routes>
-                <Route path="/" element={userId ? <Navigate to="/items"/> : <LoginForm onSubmit={id => setUser(id)}/>}/>
-                <Route path="/items" element={<ItemList/>}/>
+                <Route path="/" element={userId ? <Navigate to="/items"/> :
+                    <div><LoginForm onSubmit={id => setUser(id)}/>
+                        <div onClick={() => navigate("/new")}>New User</div>
+                    </div>}/>
+                <Route path="/new" element={<NewUserForm onUserCreated={setUser}></NewUserForm>}/>
+                <Route path="/items" element={<ItemList onBorrow={setBorrowingItem}/>}/>
                 <Route path="/items/:itemId"
                        element={<ItemBorrowForm submitLoanProposal={submitLoanProposal} item={borrowingItem}/>}/>
                 <Route path="/loans" element={<LoansList/>}/>

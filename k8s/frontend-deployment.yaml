@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uniborrow-frontend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: uniborrow-frontend
+  template:
+    metadata:
+      labels:
+        app: uniborrow-frontend
+    spec:
+      containers:
+        - image: efodx/uniborrow-frontend:latest
+          name: uniborrow-frontend
+          ports:
+            - containerPort: 80
+              name: server
+              protocol: TCP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: uniborrow-frontend
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+  selector:
+    app: uniborrow-frontend
