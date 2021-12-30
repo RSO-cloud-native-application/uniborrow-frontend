@@ -115,7 +115,9 @@ div > .button{
     justify-content: space-between;
     width: 100%;
 }
-
+.profile-form > h1{
+    margin-top: 0;
+}
 .item-borrow-form-wrp, .profile-wrapper,.add-item-form-wrp, .loan-info-wrp, .login-form-wrp{
     align-items: center;
     display: flex;

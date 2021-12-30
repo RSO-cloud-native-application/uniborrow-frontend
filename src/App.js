@@ -4,10 +4,12 @@ import axios from "axios";
 import {Routes, Route, Navigate, useNavigate, NavLink, useParams} from "react-router-dom";
 import DateTimePicker from 'react-datetime-picker';
 import logo from "./uniborrow.svg";
+import * as PropTypes from "prop-types";
 
 const LOANS_API = 'http://35.223.79.242/uniborrow-loans/v1/loans'
 const USERS_API = 'http://35.223.79.242/uniborrow-users/v1/users'
 const ITEMS_API = 'http://35.223.79.242/uniborrow-items/v1/items'
+const CASH_API = 'http://35.223.79.242/uniborrow-cash/v1/cash'
 
 function LoginForm(props) {
     const [userInput, setUserInput] = useState("")
@@ -21,7 +23,8 @@ function LoginForm(props) {
         <div className="login-form">
             <img src={logo}></img>
             <div>UserId:</div>
-            <div className="form-input"><input type="text" value={userInput} onChange={e => setUserInput(e.target.value)}/></div>
+            <div className="form-input"><input type="text" value={userInput}
+                                               onChange={e => setUserInput(e.target.value)}/></div>
             <div className="button" onClick={() => submit()}>Submit</div>
             <div className="button" onClick={() => navigate("/new")}>New User</div>
         </div>
@@ -106,6 +109,9 @@ function ItemBorrowForm(props) {
     const [description, setDescription] = useState("")
 
     useEffect(() => {
+        if (props.loan) {
+            setFromDate(props.loan.from)
+        }
         axios.get(ITEMS_API + "/" + itemId).then(res => setItem(res.data)).catch(e => alert(e.toString()))
     }, [])
 
@@ -167,8 +173,8 @@ function Loan(props) {
         axios.post(LOANS_API + "/" + loanId + "/" + "accept").then(e => navigate("/loans"))
     }
 
-    function proposeNew() {
-
+    function rejectLoan() {
+        axios.post(LOANS_API + "/" + loanId + "/" + "reject").then(e => navigate("/loans"))
     }
 
     return <div className="loan-info-wrp">
@@ -186,10 +192,13 @@ function Loan(props) {
             <div>{item.description}</div>
             <div>{item.status}</div>
         </div>
-        {(loan.acceptedState === "PENDING") && <div className="button" onClick={acceptLoan}>
+        {(loan.acceptedState === "PENDING" && loan.proposedById != props.userId) &&
+        <div className="button" onClick={acceptLoan}>
             Accept Loan
-        </div>}
-        {<div className="button" onClick={proposeNew}>Propose New</div>}
+        </div>}{(loan.acceptedState === "PENDING" && loan.proposedById != props.userId) &&
+    <div className="button" onClick={rejectLoan}>
+        Reject Loan
+    </div>}
     </div>
 }
 
@@ -266,7 +275,41 @@ function LoansList(props) {
     </div>
 }
 
-function Profile(props) {
+function CashInfo(props){
+    const [currency, setCurrency] = useState("EUR")
+    const [currentCash, setCurrentCash] = useState(0)
+    const [cashToAdd, setCashToAdd] = useState(0)
+    const [cashToWithdraw, setCashToWithdraw] = useState(0)
+    const navigate = useNavigate()
+
+    function addCash(){
+        axios.post(CASH_API + "/add?amount="+cashToAdd + "&currency=" + currency).then(e=> navigate("/profile")).catch(e=> alert(e.toString()))
+    }
+
+    function withdrawCash(){
+        axios.post(CASH_API + "/withdraw?amount="+cashToAdd + "&currency=" + currency).then(e=> navigate("/profile")).catch(e=> alert(e.toString()))
+    }
+
+    useEffect(() => {
+        axios.get(CASH_API + "/" + props.userId+"&currency=" + currency).then(response => setCurrentCash(response.data.currentCash)).catch(e=> setCurrentCash(150))
+    }, [])
+
+   return <div className="profile-wrapper">
+        <div className="profile-form">
+            <h1>Cash Information</h1>
+            <select onChange={e=>setCurrency(e.target.value)} value={currency}>
+                <option value="EUR">EUR</option>
+                <option value="USD">USD</option>
+                <option value="GBP">GBP</option>
+            </select>
+            <div className="profile-setting form-input">Current Cash: {currentCash}</div>
+            <div className="form-input"><input onClick={addCash} type="number" value={cashToAdd} onChange={e=>setCashToAdd(e.target.value)}/> <div className="button">Add cash</div> </div>
+            <div className="form-input"><input onClick={withdrawCash} type="number" value={cashToWithdraw} onChange={e=>setCashToWithdraw(e.target.value)}/> <div className="button">Withdraw cash</div> </div>
+        </div>
+    </div>
+}
+
+function UserInfo(props) {
     const [user, setUser] = useState({
         "email": "Placeholder.Placeholder@mail.com",
         "firstName": "Placeholder",
@@ -288,6 +331,7 @@ function Profile(props) {
 
     return <div className="profile-wrapper">
         <div className="profile-form">
+            <h1>User Information</h1>
             <div className="profile-setting form-input">First Name: <div
                 onClick={() => setEditingFName(true)}>{editingFName ?
                 <input type="text" value={user.firstName} onChange={e => {
@@ -377,6 +421,15 @@ function NewItemForm(props) {
     </div>
 }
 
+function Profile(props) {
+    return <div><UserInfo userId={props.userId}/><CashInfo userId={props.userId}/></div>
+}
+
+Profile.propTypes = {
+    userId: PropTypes.string,
+    children: PropTypes.node
+};
+
 function App() {
     let localUserId = localStorage.getItem('userId')
     const navigate = useNavigate();
@@ -437,7 +490,7 @@ function App() {
                 <Route path="/items/:itemId"
                        element={<ItemBorrowForm submitLoanProposal={submitLoanProposal}/>}/>
                 <Route path="/loans" element={<LoansList userId={userId}/>}/>
-                <Route path="/loans/:loanId" element={<Loan/>}/>
+                <Route path="/loans/:loanId" element={<Loan userId={userId}/>}/>
                 <Route path="/profile" element={<Profile userId={userId}/>}/>
                 <Route path="/logout" element={<Logout/>}/>
             </Routes>
