@@ -282,18 +282,18 @@ function CashInfo(props) {
     const [cashToWithdraw, setCashToWithdraw] = useState(0)
     const navigate = useNavigate()
 
-    function addCash() {
-        axios.post(CASH_API + "/" + props.userId + "/add?amount=" + cashToAdd + "&currency=" + currency).then(e => navigate("/profile")).catch(e => alert(e.toString()))
-        fetchData()
+    async function addCash() {
+        await axios.post(CASH_API + "/" + props.userId + "/add?amount=" + cashToAdd + "&currency=" + currency).then(e => navigate("/profile")).catch(e => alert(e.toString()))
+        await fetchData()
     }
 
-    function withdrawCash() {
-        axios.post(CASH_API + "/" + props.userId + "/withdraw?amount=" + cashToAdd + "&currency=" + currency).then(e => navigate("/profile")).catch(e => alert(e.toString()))
-        fetchData()
+    async function withdrawCash() {
+        await axios.post(CASH_API + "/" + props.userId + "/withdraw?amount=" + cashToAdd + "&currency=" + currency).then(e => navigate("/profile")).catch(e => alert(e.toString()))
+        await fetchData()
     }
 
-    function fetchData() {
-        axios.get(CASH_API + "/" + props.userId + "?currency=" + currency).then(response => setCurrentCash(response.data.currentCash)).catch(e => setCurrentCash(150))
+    async function fetchData() {
+        return axios.get(CASH_API + "/" + props.userId + "?currency=" + currency).then(response => setCurrentCash(response.data.currentCash)).catch(e => setCurrentCash(150))
     }
 
     useEffect(() => {
