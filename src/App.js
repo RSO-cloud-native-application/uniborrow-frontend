@@ -275,36 +275,42 @@ function LoansList(props) {
     </div>
 }
 
-function CashInfo(props){
+function CashInfo(props) {
     const [currency, setCurrency] = useState("EUR")
     const [currentCash, setCurrentCash] = useState(0)
     const [cashToAdd, setCashToAdd] = useState(0)
     const [cashToWithdraw, setCashToWithdraw] = useState(0)
     const navigate = useNavigate()
 
-    function addCash(){
-        axios.post(CASH_API + "/add?amount="+cashToAdd + "&currency=" + currency).then(e=> navigate("/profile")).catch(e=> alert(e.toString()))
+    function addCash() {
+        axios.post(CASH_API + "/" + props.userId + "/add?amount=" + cashToAdd + "&currency=" + currency).then(e => navigate("/profile")).catch(e => alert(e.toString()))
     }
 
-    function withdrawCash(){
-        axios.post(CASH_API + "/withdraw?amount="+cashToAdd + "&currency=" + currency).then(e=> navigate("/profile")).catch(e=> alert(e.toString()))
+    function withdrawCash() {
+        axios.post(CASH_API + "/" + props.userId + "/withdraw?amount=" + cashToAdd + "&currency=" + currency).then(e => navigate("/profile")).catch(e => alert(e.toString()))
     }
 
     useEffect(() => {
-        axios.get(CASH_API + "/" + props.userId+"&currency=" + currency).then(response => setCurrentCash(response.data.currentCash)).catch(e=> setCurrentCash(150))
+        axios.get(CASH_API + "/" + props.userId + "&currency=" + currency).then(response => setCurrentCash(response.data.currentCash)).catch(e => setCurrentCash(150))
     }, [])
 
-   return <div className="profile-wrapper">
+    return <div className="profile-wrapper">
         <div className="profile-form">
             <h1>Cash Information</h1>
-            <select onChange={e=>setCurrency(e.target.value)} value={currency}>
+            <select onChange={e => setCurrency(e.target.value)} value={currency}>
                 <option value="EUR">EUR</option>
                 <option value="USD">USD</option>
                 <option value="GBP">GBP</option>
             </select>
             <div className="profile-setting form-input">Current Cash: {currentCash}</div>
-            <div className="form-input"><input  type="number" value={cashToAdd} onChange={e=>setCashToAdd(e.target.value)}/> <div onClick={addCash} className="button">Add cash</div> </div>
-            <div className="form-input"><input  type="number" value={cashToWithdraw} onChange={e=>setCashToWithdraw(e.target.value)}/> <div onClick={withdrawCash} className="button">Withdraw cash</div> </div>
+            <div className="form-input"><input type="number" value={cashToAdd}
+                                               onChange={e => setCashToAdd(e.target.value)}/>
+                <div onClick={addCash} className="button">Add cash</div>
+            </div>
+            <div className="form-input"><input type="number" value={cashToWithdraw}
+                                               onChange={e => setCashToWithdraw(e.target.value)}/>
+                <div onClick={withdrawCash} className="button">Withdraw cash</div>
+            </div>
         </div>
     </div>
 }
