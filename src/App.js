@@ -284,14 +284,20 @@ function CashInfo(props) {
 
     function addCash() {
         axios.post(CASH_API + "/" + props.userId + "/add?amount=" + cashToAdd + "&currency=" + currency).then(e => navigate("/profile")).catch(e => alert(e.toString()))
+        fetchData()
     }
 
     function withdrawCash() {
         axios.post(CASH_API + "/" + props.userId + "/withdraw?amount=" + cashToAdd + "&currency=" + currency).then(e => navigate("/profile")).catch(e => alert(e.toString()))
+        fetchData()
+    }
+
+    function fetchData() {
+        axios.get(CASH_API + "/" + props.userId + "?currency=" + currency).then(response => setCurrentCash(response.data.currentCash)).catch(e => setCurrentCash(150))
     }
 
     useEffect(() => {
-        axios.get(CASH_API + "/" + props.userId + "?currency=" + currency).then(response => setCurrentCash(response.data.currentCash)).catch(e => setCurrentCash(150))
+        fetchData()
     }, [])
 
     return <div className="profile-wrapper">
