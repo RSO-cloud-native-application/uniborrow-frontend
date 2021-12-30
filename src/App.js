@@ -291,7 +291,7 @@ function CashInfo(props) {
     }
 
     useEffect(() => {
-        axios.get(CASH_API + "/" + props.userId + "&currency=" + currency).then(response => setCurrentCash(response.data.currentCash)).catch(e => setCurrentCash(150))
+        axios.get(CASH_API + "/" + props.userId + "?currency=" + currency).then(response => setCurrentCash(response.data.currentCash)).catch(e => setCurrentCash(150))
     }, [])
 
     return <div className="profile-wrapper">
