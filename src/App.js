@@ -296,6 +296,11 @@ function CashInfo(props) {
         return axios.get(CASH_API + "/" + props.userId + "?currency=" + currency).then(response => setCurrentCash(response.data.currentCash)).catch(e => setCurrentCash(150))
     }
 
+    async function setKurency(currency){
+        setCurrency(currency)
+        await fetchData()
+    }
+
     useEffect(() => {
         fetchData()
     }, [])
@@ -303,7 +308,7 @@ function CashInfo(props) {
     return <div className="profile-wrapper">
         <div className="profile-form">
             <h1>Cash Information</h1>
-            <select onChange={e => setCurrency(e.target.value)} value={currency}>
+            <select onChange={e => setKurency(e.target.value)} value={currency}>
                 <option value="EUR">EUR</option>
                 <option value="USD">USD</option>
                 <option value="GBP">GBP</option>
