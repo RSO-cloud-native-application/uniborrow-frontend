@@ -303,8 +303,8 @@ function CashInfo(props){
                 <option value="GBP">GBP</option>
             </select>
             <div className="profile-setting form-input">Current Cash: {currentCash}</div>
-            <div className="form-input"><input onClick={addCash} type="number" value={cashToAdd} onChange={e=>setCashToAdd(e.target.value)}/> <div className="button">Add cash</div> </div>
-            <div className="form-input"><input onClick={withdrawCash} type="number" value={cashToWithdraw} onChange={e=>setCashToWithdraw(e.target.value)}/> <div className="button">Withdraw cash</div> </div>
+            <div className="form-input"><input  type="number" value={cashToAdd} onChange={e=>setCashToAdd(e.target.value)}/> <div onClick={addCash} className="button">Add cash</div> </div>
+            <div className="form-input"><input  type="number" value={cashToWithdraw} onChange={e=>setCashToWithdraw(e.target.value)}/> <div onClick={withdrawCash} className="button">Withdraw cash</div> </div>
         </div>
     </div>
 }
