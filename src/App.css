@@ -130,6 +130,10 @@ div > .button{
 
 .item-borrow-form, .profile-form, .add-item-form,.loan-info, .login-form{
     margin-top: 5vh;
+    background-color: #f3f8fd;
+    padding: 5vh;
+    border: 1px solid;
+    border-radius: 1vh;
 }
 
 .profile-wrapper > .profile-setting {
