@@ -26,6 +26,13 @@ function Chat(props) {
         }).catch(err => alert(err.toString()))
     }
 
+    function onPress(e){
+        if(e.keyCode === 13){
+            e.preventDefault()
+            sendMessage()
+        }
+    }
+
     useEffect(() => {
         axios.get(CHAT_API + "/private?userOne=" + props.userId + "&userTwo=" + props.otherUserId).then(res => setMessages(res.data)).catch(e => alert(e.toString()))
     }, [])
@@ -36,7 +43,7 @@ function Chat(props) {
             className={"message" + ((props.userId == message.userFromId) ? " my" : " his")}>{message.message}</div>)}
         <div className="form-input"><input type="text" value={newMessage}
                                            onChange={e => setNewMessage(e.target.value)}/>
-            <div className="button" onClick={sendMessage}>Send</div>
+            <div className="button" onKeyUp={onPress} onClick={sendMessage}>Send</div>
         </div>
     </div></div>;
 }

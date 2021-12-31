@@ -21,6 +21,7 @@
 .message{
     border-radius: 5px;
     border: 1px solid;
+    padding: 3px;
     margin-block: 5px;
 }
 .message.his {
