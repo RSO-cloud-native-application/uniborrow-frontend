@@ -577,8 +577,12 @@ function App() {
     }
 
     async function checkUserExists(id) {
-        const resp = await axios.get(USERS_API + "/" + id)
-        return resp.status === 200
+        try {
+            const resp = await axios.get(USERS_API + "/" + id)
+            return resp.status === 200
+        } catch (err) {
+            return false;
+        }
     }
 
     async function setUser(id) {
