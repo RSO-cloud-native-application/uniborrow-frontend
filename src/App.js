@@ -41,7 +41,7 @@ function Chat(props) {
         <h1>Chat with {props.otherUserId}</h1>
         {messages.map(message => <div
             className={"message" + ((props.userId == message.userFromId) ? " my" : " his")}>{message.message}</div>)}
-        <div className="form-input"><input type="text" value={newMessage}
+        <div className="form-input msg-input"><input className="msg-txt-input" type="text" value={newMessage}
                                            onChange={e => setNewMessage(e.target.value)}/>
             <div className="button" onKeyUp={onPress} onClick={sendMessage}>Send</div>
         </div>
