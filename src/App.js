@@ -30,14 +30,15 @@ function Chat(props) {
         axios.get(CHAT_API + "/private?userOne=" + props.userId + "&userTwo=" + props.otherUserId).then(res => setMessages(res.data)).catch(e => alert(e.toString()))
     }, [])
 
-    return <div className="chat">
+    return <div className="chat-wrp"><div className="chat">
+        <h1>Chat with {props.otherUserId}</h1>
         {messages.map(message => <div
-            className={"message" + ((props.userId === message.fromId) ? " my" : " his")}>{message.message}</div>)}
+            className={"message" + ((props.userId === message.userFromId) ? " my" : " his")}>{message.message}</div>)}
         <div className="form-input"><input type="text" value={newMessage}
                                            onChange={e => setNewMessage(e.target.value)}/>
             <div className="button" onClick={sendMessage}>Send</div>
         </div>
-    </div>;
+    </div></div>;
 }
 
 function Chats(props) {
@@ -332,20 +333,20 @@ function CashInfo(props) {
 
     async function withdrawCash() {
         await axios.post(CASH_API + "/" + props.userId + "/withdraw?amount=" + cashToWithdraw + "&currency=" + currency).then(e => navigate("/profile")).catch(e => alert(e.toString()))
-        await fetchData(currency)
+        fetchData(currency)
     }
 
-    async function fetchData(currency) {
-        return axios.get(CASH_API + "/" + props.userId + "?currency=" + currency).then(response => setCurrentCash(response.data.currentCash)).catch(e => setCurrentCash(150))
+    function fetchData(currency) {
+        axios.get(CASH_API + "/" + props.userId + "?currency=" + currency).then(response => setCurrentCash(response.data.currentCash)).catch(e => setCurrentCash(150))
     }
 
     async function setKurency(currency) {
         setCurrency(currency)
-        await fetchData(currency)
+        fetchData(currency)
     }
 
     useEffect(() => {
-        fetchData()
+        fetchData(currency)
     }, [])
 
     return <div className="profile-wrapper">
