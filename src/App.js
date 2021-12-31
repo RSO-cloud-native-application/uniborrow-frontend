@@ -101,9 +101,9 @@ function ItemList(props) {
 
 
 function ItemBorrowForm(props) {
-    const navigate = useNavigate();
     const {itemId} = useParams()
     const [item, setItem] = useState({})
+    const [price, setPrice] = useState(0)
     const [fromDate, setFromDate] = useState(new Date())
     const [toDate, setToDate] = useState(new Date())
     const [description, setDescription] = useState("")
@@ -123,8 +123,10 @@ function ItemBorrowForm(props) {
             </div>
             <div className="form-input">From <DateTimePicker onChange={setFromDate} value={fromDate}/></div>
             <div className="form-input">To <DateTimePicker onChange={setToDate} value={toDate}/></div>
+            <div className="form-input">Price <input type="number" onChange={e => setPrice(e.target.value)}
+                                                     value={price}/></div>
             <div className="button"
-                 onClick={() => props.submitLoanProposal(fromDate, toDate, description, item)}>Submit
+                 onClick={() => props.submitLoanProposal(fromDate, toDate, description, price)}>Submit
             </div>
             <BackButton/></div>
     </div>
@@ -180,17 +182,17 @@ function Loan(props) {
     return <div className="loan-info-wrp">
         <div className="loan-info">
             Loan Info
-            <div>{loan.itemId}</div>
-            <div>{loan.description}</div>
-            <div>{loan.startTime && loan.startTime.substr(0, 10)} - {loan.endTime && loan.endTime.substr(0, 10)}</div>
-            <div>{loan.acceptedState}</div>
+            <div>Item id:{loan.itemId}</div>
+            <div>Description:{loan.description}</div>
+            <div>Period:{loan.startTime && loan.startTime.substr(0, 10)} - {loan.endTime && loan.endTime.substr(0, 10)}</div>
+            <div>Price:{loan.price}EUR</div>
+            <div>State:{loan.acceptedState}</div>
         </div>
         <div className="loan-info">
             Item Info
             <div>{item.title}</div>
             <div className="image-wrapper"><img src={item.uri}/></div>
-            <div>{item.description}</div>
-            <div>{item.status}</div>
+            <div>Description:{item.description}</div>
         </div>
         {(loan.acceptedState === "PENDING" && loan.proposedById != props.userId) &&
         <div className="button" onClick={acceptLoan}>
@@ -280,6 +282,7 @@ function CashInfo(props) {
     const [currentCash, setCurrentCash] = useState(0)
     const [cashToAdd, setCashToAdd] = useState(0)
     const [cashToWithdraw, setCashToWithdraw] = useState(0)
+    const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
 
     async function addCash() {
@@ -296,9 +299,10 @@ function CashInfo(props) {
         return axios.get(CASH_API + "/" + props.userId + "?currency=" + currency).then(response => setCurrentCash(response.data.currentCash)).catch(e => setCurrentCash(150))
     }
 
-    async function setKurency(currency){
+    async function setKurency(currency) {
+        setLoading(true)
         setCurrency(currency)
-        await fetchData()
+        fetchData().then(setLoading(false))
     }
 
     useEffect(() => {
@@ -313,7 +317,8 @@ function CashInfo(props) {
                 <option value="USD">USD</option>
                 <option value="GBP">GBP</option>
             </select>
-            <div className="profile-setting form-input">Current Cash: {currentCash}</div>
+            <div className="profile-setting form-input">Current Cash: {loading ?
+                <div>Loading...</div> : currentCash}{currency}</div>
             <div className="form-input"><input type="number" value={cashToAdd}
                                                onChange={e => setCashToAdd(e.target.value)}/>
                 <div onClick={addCash} className="button">Add cash</div>
@@ -438,8 +443,69 @@ function NewItemForm(props) {
     </div>
 }
 
+function TransactionsInfo(props) {
+    const testTransaktions = [{
+        "cash": 123.0,
+        "fromId": 1,
+        "id": 1,
+        "timestamp": "2020-01-01T15:36:38Z",
+        "toId": 2
+    }, {"cash": 1.0, "fromId": 1, "id": 2, "timestamp": "2021-12-31T10:00:05.559610Z", "toId": 1}, {
+        "cash": 1.0,
+        "fromId": 1,
+        "id": 3,
+        "timestamp": "2021-12-31T10:00:19.054621Z",
+        "toId": 1
+    }, {"cash": 1.0, "fromId": 1, "id": 4, "timestamp": "2021-12-31T10:00:25.805766Z", "toId": 1}, {
+        "cash": 1.0,
+        "fromId": 1,
+        "id": 5,
+        "timestamp": "2021-12-31T10:00:32.256156Z",
+        "toId": 1
+    }, {"cash": 1.0, "fromId": 1, "id": 6, "timestamp": "2021-12-31T10:00:51.366634Z", "toId": 1}, {
+        "cash": 1.0,
+        "fromId": 1,
+        "id": 7,
+        "timestamp": "2021-12-31T10:00:55.342849Z",
+        "toId": 1
+    }, {"cash": 1.0, "fromId": 1, "id": 8, "timestamp": "2021-12-31T10:01:00.071249Z", "toId": 1}]
+    const [transactions, setTransactions] = useState([])
+
+    useEffect(() => {
+        axios.get(CASH_API + "/transactions/" + props.userId).then(res => setTransactions(res.data)).catch(e=>setTransactions(testTransaktions))
+    }, [])
+
+    function amountFromTransaction(cash,fromId,toId){
+        let transType;
+        if(fromId === toId){
+            if(cash < 0){
+                transType = ["WITHDRAWAL", cash]
+            } else{
+                transType =  ["DEPOSIT", cash]
+            }
+        }
+        else if(toId == props.userId){
+            transType = ["RECEIVE", cash]
+        }
+        else if(fromId == props.userId){
+            transType = ["SEND", cash]
+        }
+        return <div>{transType[0]}  {transType[1]}EUR</div>
+    }
+
+    return <div className="add-item-form-wrp">
+        <div className="add-item-form">
+            <h1>Transactions</h1>
+            {transactions.map(transaction=>
+            <div className="form-input"> {amountFromTransaction(transaction.cash, transaction.fromId, transaction.toId)}</div>)}
+        </div>
+    </div>
+}
+
+
 function Profile(props) {
-    return <div><UserInfo userId={props.userId}/><CashInfo userId={props.userId}/></div>
+    return <div><UserInfo userId={props.userId}/><CashInfo userId={props.userId}/><TransactionsInfo
+        userId={props.userId}/></div>
 }
 
 Profile.propTypes = {
@@ -453,7 +519,7 @@ function App() {
     const [userId, setUserId] = useState(localUserId)
     const [borrowingItem, setBorrowingItem] = useState(null)
 
-    function submitLoanProposal(from, to, desc) {
+    function submitLoanProposal(from, to, desc, price) {
         const params = {
             "description": desc,
             "endTime": to.toISOString(),
@@ -461,7 +527,8 @@ function App() {
             "itemId": borrowingItem.itemId,
             "proposedById": parseInt(userId),
             "startTime": from.toISOString(),
-            "toId": parseInt(userId)
+            "toId": parseInt(userId),
+            "price": price
         }
         axios.post(LOANS_API + "/propose", params)
             .then(e => navigate(-1))
