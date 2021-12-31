@@ -10,6 +10,29 @@ const LOANS_API = 'http://35.223.79.242/uniborrow-loans/v1/loans'
 const USERS_API = 'http://35.223.79.242/uniborrow-users/v1/users'
 const ITEMS_API = 'http://35.223.79.242/uniborrow-items/v1/items'
 const CASH_API = 'http://35.223.79.242/uniborrow-cash/v1/cash'
+const CHAT_API = 'http://35.223.79.242/uniborrow-chat/v1/chat'
+
+function Chat(props) {
+    const [messages, setMessages] = useState([])
+
+    useEffect(() => {
+        axios.get(CHAT_API + "/private?userOne=" + props.userId + "&userTwo=" + props.otherUserId).then(res => setMessages(res.data)).catch(e => alert(e.toString()))
+    }, [])
+
+    return <div>
+        {messages.map(message => <div>{message.message}</div>)}
+    </div>;
+}
+
+function Chats(props) {
+    const [chats, setChats] = useState([])
+
+    useEffect(() => {
+        axios.get(CHAT_API + "/" + "?userId=" + props.userId).then(res => setChats(res.data)).catch(err => alert(err.toString()))
+    }, [])
+
+    return chats.map(otherUserId => <Chat userId={props.userId} otherUserId={otherUserId}></Chat>)
+}
 
 function LoginForm(props) {
     const [userInput, setUserInput] = useState("")
@@ -138,6 +161,7 @@ function NavBar() {
         <NavLink to="/items">Items</NavLink>
         <NavLink to="/loans">My Loans</NavLink>
         <NavLink to="/profile">My Profile</NavLink>
+        <NavLink to="/chat">Messages</NavLink>
         <NavLink to="/logout">Logout</NavLink>
     </div>
 }
@@ -295,14 +319,13 @@ function CashInfo(props) {
         await fetchData()
     }
 
-    async function fetchData() {
+    async function fetchData(currency) {
         return axios.get(CASH_API + "/" + props.userId + "?currency=" + currency).then(response => setCurrentCash(response.data.currentCash)).catch(e => setCurrentCash(150))
     }
 
     async function setKurency(currency) {
-        setLoading(true)
         setCurrency(currency)
-        fetchData().then(setLoading(false))
+        await fetchData(currency)
     }
 
     useEffect(() => {
@@ -472,32 +495,31 @@ function TransactionsInfo(props) {
     const [transactions, setTransactions] = useState([])
 
     useEffect(() => {
-        axios.get(CASH_API + "/transactions/" + props.userId).then(res => setTransactions(res.data)).catch(e=>setTransactions(testTransaktions))
+        axios.get(CASH_API + "/transactions/" + props.userId).then(res => setTransactions(res.data)).catch(e => setTransactions(testTransaktions))
     }, [])
 
-    function amountFromTransaction(cash,fromId,toId){
+    function amountFromTransaction(cash, fromId, toId) {
         let transType;
-        if(fromId === toId){
-            if(cash < 0){
+        if (fromId === toId) {
+            if (cash < 0) {
                 transType = ["WITHDRAWAL", cash]
-            } else{
-                transType =  ["DEPOSIT", cash]
+            } else {
+                transType = ["DEPOSIT", cash]
             }
-        }
-        else if(toId == props.userId){
+        } else if (toId == props.userId) {
             transType = ["RECEIVE", cash]
-        }
-        else if(fromId == props.userId){
+        } else if (fromId == props.userId) {
             transType = ["SEND", cash]
         }
-        return <div>{transType[0]}  {transType[1]}EUR</div>
+        return <div>{transType[0]} {transType[1]}EUR</div>
     }
 
     return <div className="add-item-form-wrp">
         <div className="add-item-form">
             <h1>Transactions</h1>
-            {transactions.map(transaction=>
-            <div className="form-input"> {amountFromTransaction(transaction.cash, transaction.fromId, transaction.toId)}</div>)}
+            {transactions.map(transaction =>
+                <div
+                    className="form-input"> {amountFromTransaction(transaction.cash, transaction.fromId, transaction.toId)}</div>)}
         </div>
     </div>
 }
@@ -507,11 +529,6 @@ function Profile(props) {
     return <div><UserInfo userId={props.userId}/><CashInfo userId={props.userId}/><TransactionsInfo
         userId={props.userId}/></div>
 }
-
-Profile.propTypes = {
-    userId: PropTypes.string,
-    children: PropTypes.node
-};
 
 function App() {
     let localUserId = localStorage.getItem('userId')
@@ -536,12 +553,11 @@ function App() {
     }
 
     async function checkUserExists(id) {
-        const userExists = {exists: false}
-        axios.get(USERS_API + "/" + id).then(() => userExists.exists = true)
-        return userExists.exists
+        const resp = await axios.get(USERS_API + "/" + id)
+        return resp.status === 200
     }
 
-    function setUser(id) {
+    async function setUser(id) {
         if (id != null) {
             const userExists = checkUserExists(id)
             if (userExists) {
@@ -557,8 +573,7 @@ function App() {
     }
 
     function Logout() {
-        setUser(null)
-        navigate('/')
+        setUser(null).then(() => navigate('/'))
         return <Navigate to="/"/>
     }
 
@@ -576,6 +591,7 @@ function App() {
                 <Route path="/loans" element={<LoansList userId={userId}/>}/>
                 <Route path="/loans/:loanId" element={<Loan userId={userId}/>}/>
                 <Route path="/profile" element={<Profile userId={userId}/>}/>
+                <Route path="/chat" element={<Chats userId={userId}/>}/>
                 <Route path="/logout" element={<Logout/>}/>
             </Routes>
         </div>
