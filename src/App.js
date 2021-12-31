@@ -33,7 +33,7 @@ function Chat(props) {
     return <div className="chat-wrp"><div className="chat">
         <h1>Chat with {props.otherUserId}</h1>
         {messages.map(message => <div
-            className={"message" + ((props.userId === message.userFromId) ? " my" : " his")}>{message.message}</div>)}
+            className={"message" + ((props.userId == message.userFromId) ? " my" : " his")}>{message.message}</div>)}
         <div className="form-input"><input type="text" value={newMessage}
                                            onChange={e => setNewMessage(e.target.value)}/>
             <div className="button" onClick={sendMessage}>Send</div>

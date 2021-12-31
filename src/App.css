@@ -5,8 +5,24 @@
 
 .chat{
     background-color: whitesmoke;
+    width: 80%;
+    padding: 4vh;
+    border-radius: 5px;
+    border: 1px solid;
 }
 
+.chat-wrp{
+    display:flex;
+    justify-content: center;
+    padding: 4vh;
+    border-radius: 5px;
+    border: 1px solid;
+}
+.message{
+    border-radius: 5px;
+    border: 1px solid;
+    margin-block: 5px;
+}
 .message.his {
     background-color: #ffeac3;
 }
