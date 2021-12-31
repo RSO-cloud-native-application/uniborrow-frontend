@@ -583,7 +583,7 @@ function App() {
 
     async function setUser(id) {
         if (id != null) {
-            const userExists = checkUserExists(id)
+            const userExists = await checkUserExists(id)
             if (userExists) {
                 localStorage.setItem('userId', id)
                 setUserId(id)
