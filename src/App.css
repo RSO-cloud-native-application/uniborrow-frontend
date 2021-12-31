@@ -3,6 +3,18 @@
     background: #cacadc;
 }
 
+.chat{
+    background-color: whitesmoke;
+}
+
+.message.his {
+    background-color: #ffeac3;
+}
+
+.message.my {
+    background-color: #7ade7a;
+}
+
 .search-row {
     margin-top: 5px;
     display: flex;
