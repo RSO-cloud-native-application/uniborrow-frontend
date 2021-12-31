@@ -4,7 +4,6 @@ import axios from "axios";
 import {Routes, Route, Navigate, useNavigate, NavLink, useParams} from "react-router-dom";
 import DateTimePicker from 'react-datetime-picker';
 import logo from "./uniborrow.svg";
-import * as PropTypes from "prop-types";
 
 const LOANS_API = 'http://35.223.79.242/uniborrow-loans/v1/loans'
 const USERS_API = 'http://35.223.79.242/uniborrow-users/v1/users'
@@ -14,6 +13,18 @@ const CHAT_API = 'http://35.223.79.242/uniborrow-chat/v1/chat'
 
 function Chat(props) {
     const [messages, setMessages] = useState([])
+    const [newMessage, setNewMessage] = useState("")
+
+    function sendMessage() {
+        axios.post(CHAT_API, {
+            "message": newMessage,
+            "userFromId": props.userId,
+            "userToId": props.otherUserId
+        }).then(e => {
+            setMessages([...messages, e.data])
+            setNewMessage("")
+        }).catch(err => alert(err.toString()))
+    }
 
     useEffect(() => {
         axios.get(CHAT_API + "/private?userOne=" + props.userId + "&userTwo=" + props.otherUserId).then(res => setMessages(res.data)).catch(e => alert(e.toString()))
@@ -21,6 +32,9 @@ function Chat(props) {
 
     return <div>
         {messages.map(message => <div>{message.message}</div>)}
+        <div><input type="text" value={newMessage} onChange={e => setNewMessage(e.target.value)}/>
+            <div className="button" onClick={sendMessage}>Send</div>
+        </div>
     </div>;
 }
 
