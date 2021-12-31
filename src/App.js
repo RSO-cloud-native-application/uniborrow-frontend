@@ -288,7 +288,7 @@ function CashInfo(props) {
     }
 
     async function withdrawCash() {
-        await axios.post(CASH_API + "/" + props.userId + "/withdraw?amount=" + cashToAdd + "&currency=" + currency).then(e => navigate("/profile")).catch(e => alert(e.toString()))
+        await axios.post(CASH_API + "/" + props.userId + "/withdraw?amount=" + cashToWithdraw + "&currency=" + currency).then(e => navigate("/profile")).catch(e => alert(e.toString()))
         await fetchData()
     }
 
