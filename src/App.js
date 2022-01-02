@@ -565,13 +565,14 @@ function NewUserForm(props) {
         }).catch(e => alert(e.toString()))
     }
 
-    return <div>
-        <div>Username:<input type="text" onChange={e => setUserName(e.target.value)} value={userName}/></div>
-        <div>First Name:<input type="text" onChange={e => setFName(e.target.value)} value={fName}/></div>
-        <div>Last Name:<input type="text" onChange={e => setLName(e.target.value)} value={lName}/></div>
-        <div>Email:<input type="text" onChange={e => setEmail(e.target.value)} value={email}/></div>
-        <div onClick={createUser}>Create</div>
-        <BackButton/>
+    return <div className="profile-wrapper">
+        <div className="profile-form">
+        <div className="form-input">Username:<input type="text" onChange={e => setUserName(e.target.value)} value={userName}/></div>
+        <div className="form-input">First Name:<input type="text" onChange={e => setFName(e.target.value)} value={fName}/></div>
+        <div className="form-input">Last Name:<input type="text" onChange={e => setLName(e.target.value)} value={lName}/></div>
+        <div className="form-input">Email:<input type="text" onChange={e => setEmail(e.target.value)} value={email}/></div>
+        <div className="button" onClick={createUser}>Create</div>
+        <BackButton/></div>
     </div>
 }
 
