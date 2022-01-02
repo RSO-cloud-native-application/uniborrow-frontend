@@ -8,6 +8,7 @@ import * as PropTypes from "prop-types";
 
 const LOANS_API = 'http://35.223.79.242/uniborrow-loans/v1/loans'
 const USERS_API = 'http://35.223.79.242/uniborrow-users/v1/users'
+const LOGIN_API = 'http://35.223.79.242/uniborrow-users/v1/users'
 const ITEMS_API = 'http://35.223.79.242/uniborrow-items/v1/items'
 const CASH_API = 'http://35.223.79.242/uniborrow-cash/v1/cash'
 const CHAT_API = 'http://35.223.79.242/uniborrow-chat/v1/chat'
@@ -104,7 +105,7 @@ function LoginForm(props) {
 function ItemPreview(props) {
     const navigate = useNavigate()
     const item = props.item
-    return <div onClick={()=>navigate("/items/" + item.itemId)} className="item">
+    return <div onClick={() => navigate("/items/" + item.itemId)} className="item">
         <div>{item.title}</div>
         <div className="image-wrapper"><img src={item.uri}/></div>
         <div>{item.description}</div>
@@ -132,7 +133,7 @@ function Item() {
         </div>
         <div>
             <h1>Reviews</h1>
-            <ReviewList itemId={item.itemId}/>
+            <ReviewList itemId={item.id}/>
         </div>
     </div>
 }
@@ -145,7 +146,7 @@ function ItemList(props) {
     const testItems = [{
         "category": "Books",
         "description": "Novel written by Leo Tolstoy.",
-        "itemId": 1,
+        "id": 1,
         "score": 1325,
         "status": "Available",
         "title": "War and Peace",
@@ -154,7 +155,7 @@ function ItemList(props) {
     }, {
         "category": "Vehicle",
         "description": "The ultimate bike for mountain off-road adventures! The most successful \"solid\" with a new \"racing\" geometry for even more power, stability and precision!",
-        "itemId": 2,
+        "id": 2,
         "score": 1325,
         "status": "Available",
         "title": "Mountain bike Olympia F1",
@@ -163,7 +164,7 @@ function ItemList(props) {
     }, {
         "category": "Musical Instruments",
         "description": "The Yamaha F310 is everything youve been looking for. It combines superb value for money with Yamahas long heritage of creating high-quality instruments. This F310 Acoustic is no exception to their meticulous standards.",
-        "itemId": 3,
+        "id": 3,
         "score": 1325,
         "status": "Available",
         "title": "Guitar",
@@ -181,7 +182,7 @@ function ItemList(props) {
 
     function onBorrow(item) {
         props.onBorrow(item)
-        navigate("borrow/" + item.itemId)
+        navigate("borrow/" + item.id)
     }
 
     return <div className="item-list">
@@ -549,6 +550,7 @@ function UserInfo(props) {
 }
 
 function NewUserForm(props) {
+    const [userName, setUserName] = useState("")
     const [fName, setFName] = useState("")
     const [lName, setLName] = useState("")
     const [email, setEmail] = useState("")
@@ -556,6 +558,7 @@ function NewUserForm(props) {
 
     function createUser() {
         const params = {
+            username: userName,
             email: email,
             firstName: fName,
             lastName: lName
@@ -567,6 +570,7 @@ function NewUserForm(props) {
     }
 
     return <div>
+        <div>Username:<input type="text" onChange={e => setUserName(e.target.value)} value={userName}/></div>
         <div>First Name:<input type="text" onChange={e => setFName(e.target.value)} value={fName}/></div>
         <div>Last Name:<input type="text" onChange={e => setLName(e.target.value)} value={lName}/></div>
         <div>Email:<input type="text" onChange={e => setEmail(e.target.value)} value={email}/></div>
@@ -620,37 +624,37 @@ function NewRequestForm(props) {
     const [description, setDescription] = useState("")
     const navigate = useNavigate();
 
-    function submitRequest(){
-            const params = {
-                "message": description,
-                "timestampEnd": toDate.toISOString(),
-                "userId": props.userId,
-                "timestampStart": fromDate.toISOString(),
-                "title": title,
-                "price": price
-            }
-            axios.post(REQUESTS_API, params)
-                .then(e => navigate("/"))
-                .catch(e => alert(e.toString()))
+    function submitRequest() {
+        const params = {
+            "message": description,
+            "timestampEnd": toDate.toISOString(),
+            "userId": props.userId.valueOf(),
+            "timestampStart": fromDate.toISOString(),
+            "title": title,
+            "price": price.valueOf()
         }
+        axios.post(REQUESTS_API, params)
+            .then(e => navigate("/"))
+            .catch(e => alert(e.toString()))
+    }
 
     return <div className="item-borrow-form-wrp">
         <div className="item-borrow-form">
             <h1>New Request</h1>
             <div className="form-input">Title <input type="text" onChange={e => setTitle(e.target.value)}
-                                                     value={title}/> </div>
-                <div className="form-input">Message <textarea className="desc-txt-area"
-                                                              onChange={e => setDescription(e.target.value)}
-                                                              value={description} type="text"/>
-                </div>
-                <div className="form-input">From <DateTimePicker onChange={setFromDate} value={fromDate}/></div>
-                <div className="form-input">To <DateTimePicker onChange={setToDate} value={toDate}/></div>
-                <div className="form-input">Price <input type="number" onChange={e => setPrice(e.target.value)}
-                                                         value={price}/></div>
-                <div className="button"
-                     onClick={submitRequest}>Submit
-                </div>
-                <BackButton/></div>
+                                                     value={title}/></div>
+            <div className="form-input">Message <textarea className="desc-txt-area"
+                                                          onChange={e => setDescription(e.target.value)}
+                                                          value={description} type="text"/>
+            </div>
+            <div className="form-input">From <DateTimePicker onChange={setFromDate} value={fromDate}/></div>
+            <div className="form-input">To <DateTimePicker onChange={setToDate} value={toDate}/></div>
+            <div className="form-input">Price <input type="number" onChange={e => setPrice(e.target.value)}
+                                                     value={price}/></div>
+            <div className="button"
+                 onClick={submitRequest}>Submit
+            </div>
+            <BackButton/></div>
     </div>
 }
 
@@ -741,28 +745,32 @@ function App() {
             .catch(e => alert(e.toString()))
     }
 
-    async function checkUserExists(id) {
+    async function checkUserExists(userName) {
         return true
         try {
-            const resp = await axios.get(USERS_API + "/" + id)
-            return resp.status === 200
+            const resp = await axios.get(LOGIN_API, {username: userName})
+            if (resp.status === 200) {
+                return resp.data
+            } else {
+                return null;
+            }
         } catch (err) {
-            return false;
+            return null;
         }
     }
 
-    async function setUser(id) {
-        if (id != null) {
-            const userExists = await checkUserExists(id)
-            if (userExists) {
-                localStorage.setItem('userId', id)
-                setUserId(id)
+    async function setUser(userName) {
+        if (userName != null) {
+            const user = await checkUserExists(userName)
+            if (user) {
+                localStorage.setItem('userId', user.id)
+                setUserId(user.id)
             } else {
                 alert("User doesn't exist.")
             }
         } else {
             setUserId(null)
-            localStorage.setItem('userId', id)
+            localStorage.setItem('userId', null)
         }
     }
 
@@ -775,7 +783,7 @@ function App() {
         <div className="app">{userId ? <NavBar/> : null}
             <Routes>
                 <Route path="/" element={userId ? <Navigate to="/items"/> :
-                    <div><LoginForm onSubmit={id => setUser(id)}/>
+                    <div><LoginForm onSubmit={userName => setUser(userName)}/>
                     </div>}/>
                 <Route path="/new" element={<NewUserForm onUserCreated={setUser}/>}/>
                 <Route path="/items" element={<ItemList onBorrow={setBorrowingItem}/>}/>
