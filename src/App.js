@@ -100,7 +100,7 @@ function LoginForm(props) {
 function ItemPreview(props) {
     const navigate = useNavigate()
     const item = props.item
-    return <div onClick={() => navigate("/items/" + item.id)} className="item">
+    return <div onClick={() => navigate("/items/" + item.id)} className="item item-preview">
         <div>{item.title}</div>
         <div className="image-wrapper"><img src={item.uri}/></div>
         <div>{item.description}</div>
@@ -123,11 +123,11 @@ function Item() {
             <div className="image-wrapper"><img src={item.uri}/></div>
             <div>{item.description}</div>
             <div>{item.status}</div>
-            <div onClick={() => navigate("/items/borrow/" + item.id)}>Borrow</div>
+            <div onClick={() => navigate("/items/borrow/" + itemId)}>Borrow</div>
         </div>
         <div>
             <h1>Reviews</h1>
-            <ReviewList itemId={item.id}/>
+            <ReviewList itemId={itemId}/>
         </div>
     </div>
 }
