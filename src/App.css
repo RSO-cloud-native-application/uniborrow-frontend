@@ -3,6 +3,18 @@
     background: #cacadc;
 }
 
+.ads-container{
+    display: flex;
+    margin-top: 100px;
+    justify-content: center;
+    justify-items: center;
+}
+.ad {
+    height: 150px;
+    width: 300px;
+    cursor: pointer;
+}
+
 .chat{
     background-color: whitesmoke;
     width: 80%;
@@ -151,9 +163,23 @@ div > .button{
     justify-content: space-between;
     width: 100%;
 }
-.profile-form > h1{
+.profile-form  >h1,.item-borrow-form > h1, .add-item-form >h1{
     margin-top: 0;
 }
+.review{
+    display: flex;
+    flex-direction: column;
+    background-color: #f3f8fd;
+    border: 1px solid;
+    margin-block: 5px;
+    padding: 5px;
+    border-radius: 5px;
+}
+.review > *{
+    margin-block: 2vh;
+    margin-inline: 2vw;
+}
+
 .item-borrow-form-wrp, .profile-wrapper,.add-item-form-wrp, .loan-info-wrp, .login-form-wrp{
     align-items: center;
     display: flex;

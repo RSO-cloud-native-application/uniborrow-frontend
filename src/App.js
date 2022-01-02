@@ -4,12 +4,33 @@ import axios from "axios";
 import {Routes, Route, Navigate, useNavigate, NavLink, useParams} from "react-router-dom";
 import DateTimePicker from 'react-datetime-picker';
 import logo from "./uniborrow.svg";
+import * as PropTypes from "prop-types";
 
 const LOANS_API = 'http://35.223.79.242/uniborrow-loans/v1/loans'
 const USERS_API = 'http://35.223.79.242/uniborrow-users/v1/users'
 const ITEMS_API = 'http://35.223.79.242/uniborrow-items/v1/items'
 const CASH_API = 'http://35.223.79.242/uniborrow-cash/v1/cash'
 const CHAT_API = 'http://35.223.79.242/uniborrow-chat/v1/chat'
+const REVIEWS_API = 'http://35.223.79.242/uniborrow-reviews/v1/'
+const ITEM_REVIEWS_API = REVIEWS_API + "items/"
+const USER_REVIEWS_API = REVIEWS_API + "users/"
+const REQUESTS_API = 'http://35.223.79.242/uniborrow-requests/v1/requests'
+const ADS_API = 'http://35.223.79.242/uniborrow-ads/v1/ads'
+
+function Ad() {
+    const [ad, setAd] = useState({url: "", imageUrl: ""})
+    const testAd = {
+        "id": 1,
+        "imageUrl": "https://www.fri.uni-lj.si/sites/all/themes/fri_theme/images/fri_logo.png",
+        "targetAudience": "FIFTEEN_TO_18",
+        "url": "https://www.fri.uni-lj.si/sl"
+    }
+    useEffect(() => {
+        axios.get(ADS_API).then(e => setAd(e.data)).catch(er => setAd(testAd))
+    }, [])
+    return <img onClick={() => window.open(ad.url)} src={ad.imageUrl} className="ad">
+    </img>
+}
 
 function Chat(props) {
     const [messages, setMessages] = useState([])
@@ -26,8 +47,8 @@ function Chat(props) {
         }).catch(err => alert(err.toString()))
     }
 
-    function onPress(e){
-        if(e.keyCode === 13){
+    function onPress(e) {
+        if (e.keyCode === 13) {
             e.preventDefault()
             sendMessage()
         }
@@ -37,15 +58,17 @@ function Chat(props) {
         axios.get(CHAT_API + "/private?userOne=" + props.userId + "&userTwo=" + props.otherUserId).then(res => setMessages(res.data)).catch(e => alert(e.toString()))
     }, [])
 
-    return <div className="chat-wrp"><div className="chat">
-        <h1>Chat with {props.otherUserId}</h1>
-        {messages.map(message => <div
-            className={"message" + ((props.userId == message.userFromId) ? " my" : " his")}>{message.message}</div>)}
-        <div className="form-input msg-input"><input className="msg-txt-input" type="text" value={newMessage}
-                                           onChange={e => setNewMessage(e.target.value)}/>
-            <div className="button" onKeyUp={onPress} onClick={sendMessage}>Send</div>
+    return <div className="chat-wrp">
+        <div className="chat">
+            <h1>Chat with {props.otherUserId}</h1>
+            {messages.map(message => <div
+                className={"message" + ((props.userId == message.userFromId) ? " my" : " his")}>{message.message}</div>)}
+            <div className="form-input msg-input"><input className="msg-txt-input" type="text" value={newMessage}
+                                                         onChange={e => setNewMessage(e.target.value)}/>
+                <div className="button" onKeyUp={onPress} onClick={sendMessage}>Send</div>
+            </div>
         </div>
-    </div></div>;
+    </div>;
 }
 
 function Chats(props) {
@@ -78,14 +101,39 @@ function LoginForm(props) {
     </div>
 }
 
-function Item(props) {
+function ItemPreview(props) {
+    const navigate = useNavigate()
     const item = props.item
-    return <div className="item">
+    return <div onClick={()=>navigate("/items/" + item.itemId)} className="item">
         <div>{item.title}</div>
         <div className="image-wrapper"><img src={item.uri}/></div>
         <div>{item.description}</div>
         <div>{item.status}</div>
-        <div onClick={() => props.onBorrow()}>Borrow</div>
+        <div onClick={() => props.onBorrow(item)}>Borrow</div>
+    </div>
+}
+
+function Item() {
+    const {itemId} = useParams()
+    const [item, setItem] = useState({})
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        axios.get(ITEMS_API + "/" + itemId).then((e) => setItem(e.data)).catch((e) => alert(e.toString()))
+    }, [])
+
+    return <div>
+        <div className="item">
+            <div>{item.title}</div>
+            <div className="image-wrapper"><img src={item.uri}/></div>
+            <div>{item.description}</div>
+            <div>{item.status}</div>
+            <div onClick={() => navigate("/items/borrow/" + itemId)}>Borrow</div>
+        </div>
+        <div>
+            <h1>Reviews</h1>
+            <ReviewList itemId={item.itemId}/>
+        </div>
     </div>
 }
 
@@ -124,7 +172,7 @@ function ItemList(props) {
     }]
 
     function fetchData() {
-        axios.get(ITEMS_API + "/?filter=title:LIKE:%" + searchParam + "%,description:LIKE:%" + searchParam + "%").then(response => setItems(response.data)).catch(re => setItems(testItems))
+        axios.get(ITEMS_API + "/?filter=title:LIKEIC:%" + searchParam + "%,description:LIKEIC:%" + searchParam + "%").then(response => setItems(response.data)).catch(re => setItems(testItems))
     }
 
     useEffect(() => {
@@ -133,7 +181,7 @@ function ItemList(props) {
 
     function onBorrow(item) {
         props.onBorrow(item)
-        navigate("" + item.itemId)
+        navigate("borrow/" + item.itemId)
     }
 
     return <div className="item-list">
@@ -141,7 +189,7 @@ function ItemList(props) {
                                            value={searchParam}/>
             <div className="button" onClick={() => fetchData()}>Search</div>
         </div>
-        {items.map(item => <Item onBorrow={() => onBorrow(item)} item={item}/>)}
+        {items.map(item => <ItemPreview onBorrow={() => onBorrow(item)} item={item}/>)}
         <div className="button" onClick={() => navigate("/items/new")}>Add New Item</div>
     </div>
 }
@@ -156,14 +204,12 @@ function ItemBorrowForm(props) {
     const [description, setDescription] = useState("")
 
     useEffect(() => {
-        if (props.loan) {
-            setFromDate(props.loan.from)
-        }
         axios.get(ITEMS_API + "/" + itemId).then(res => setItem(res.data)).catch(e => alert(e.toString()))
     }, [])
 
     return <div className="item-borrow-form-wrp">
         <div className="item-borrow-form">
+            <h1>Borrow Item</h1>
             <div className="form-input">Description <textarea className="desc-txt-area"
                                                               onChange={e => setDescription(e.target.value)}
                                                               value={description} type="text"/>
@@ -179,14 +225,88 @@ function ItemBorrowForm(props) {
     </div>
 }
 
+function RequestPreview(props) {
+    const request = props.request
+
+    return <div className="item">
+        <div>
+            {request.title}
+        </div>
+        <div>{request.message}</div>
+        <div>
+            <div>{request.timestampStart.substr(0, 10)} - {request.timestampEnd.substr(0, 10)}</div>
+        </div>
+        <div>{request.price}</div>
+    </div>
+}
+
+
+function RequestList(props) {
+    const [requests, setRequests] = useState([])
+    const navigate = useNavigate();
+    const testRequests = [{
+        "id": 1,
+        "message": "Hello, Im looking for a book called Ana Karenina.",
+        "price": 1.5,
+        "timestampEnd": "2021-03-03T13:13:13Z",
+        "timestampStart": "2020-02-02T12:12:12Z",
+        "title": "Ana Karenina",
+        "userId": 2
+    }, {
+        "id": 2,
+        "message": "Im looking for the new rollerblades for my son.",
+        "price": 1.5,
+        "timestampEnd": "2021-03-03T13:13:13Z",
+        "timestampStart": "2020-02-02T12:12:12Z",
+        "title": "Rollerblades",
+        "userId": 2
+    }]
+
+    useEffect(() => {
+        axios.get(REQUESTS_API).then(e => setRequests(e.data)).catch(e => setRequests(testRequests))
+    }, [])
+
+    return <div className="requests-container"><h1>Requests</h1>
+        {requests.map(request => <RequestPreview request={request}/>)}
+        <div className="button" onClick={() => navigate("/requests/new")}>Add New Request</div>
+    </div>
+}
+
 function NavBar() {
     return <div className="nav-bar">
         <img className="bar-logo" src={logo}></img>
         <NavLink to="/items">Items</NavLink>
+        <NavLink to="/requests">Requests</NavLink>
         <NavLink to="/loans">My Loans</NavLink>
         <NavLink to="/profile">My Profile</NavLink>
         <NavLink to="/chat">Messages</NavLink>
         <NavLink to="/logout">Logout</NavLink>
+    </div>
+}
+
+function Review(props) {
+    const review = props.review
+    return <div className="review">
+        <div><b>Ocena: {review.stars}</b></div>
+        <div>{review.message}</div>
+    </div>
+}
+
+function ReviewList(props) {
+    const [reviews, setReviews] = useState([])
+
+    useEffect(() => {
+        axios.get(ITEM_REVIEWS_API + props.itemId).then(e => setReviews(e.data)).catch((e) => setReviews([{
+            "itemId": 2,
+            "itemReviewId": 1,
+            "message": "Zelo dober izdelek, priporočam.",
+            "stars": 5,
+            "userReviewerId": 1
+        }, {"itemId": 1, "itemReviewId": 2, "message": "Slabo ohranjeno.", "stars": 2, "userReviewerId": 1}]))
+    }, [])
+
+    return <div className="reviews">
+        {reviews.map(review => <Review review={review}/>)}
     </div>
 }
 
@@ -476,6 +596,7 @@ function NewItemForm(props) {
 
     return <div className="add-item-form-wrp">
         <div className="add-item-form">
+            <h1>New Item</h1>
             <div className="form-input">Title: <input type="text" value={title}
                                                       onChange={e => setTitle(e.target.value)}/></div>
             <div className="form-input">Category: <input type="text" value={category}
@@ -489,6 +610,50 @@ function NewItemForm(props) {
         </div>
     </div>
 }
+
+
+function NewRequestForm(props) {
+    const [title, setTitle] = useState("")
+    const [price, setPrice] = useState(0)
+    const [fromDate, setFromDate] = useState(new Date())
+    const [toDate, setToDate] = useState(new Date())
+    const [description, setDescription] = useState("")
+    const navigate = useNavigate();
+
+    function submitRequest(){
+            const params = {
+                "message": description,
+                "timestampEnd": toDate.toISOString(),
+                "userId": props.userId,
+                "timestampStart": fromDate.toISOString(),
+                "title": title,
+                "price": price
+            }
+            axios.post(REQUESTS_API, params)
+                .then(e => navigate("/"))
+                .catch(e => alert(e.toString()))
+        }
+
+    return <div className="item-borrow-form-wrp">
+        <div className="item-borrow-form">
+            <h1>New Request</h1>
+            <div className="form-input">Title <input type="text" onChange={e => setTitle(e.target.value)}
+                                                     value={title}/> </div>
+                <div className="form-input">Message <textarea className="desc-txt-area"
+                                                              onChange={e => setDescription(e.target.value)}
+                                                              value={description} type="text"/>
+                </div>
+                <div className="form-input">From <DateTimePicker onChange={setFromDate} value={fromDate}/></div>
+                <div className="form-input">To <DateTimePicker onChange={setToDate} value={toDate}/></div>
+                <div className="form-input">Price <input type="number" onChange={e => setPrice(e.target.value)}
+                                                         value={price}/></div>
+                <div className="button"
+                     onClick={submitRequest}>Submit
+                </div>
+                <BackButton/></div>
+    </div>
+}
+
 
 function TransactionsInfo(props) {
     const testTransaktions = [{
@@ -577,6 +742,7 @@ function App() {
     }
 
     async function checkUserExists(id) {
+        return true
         try {
             const resp = await axios.get(USERS_API + "/" + id)
             return resp.status === 200
@@ -614,14 +780,19 @@ function App() {
                 <Route path="/new" element={<NewUserForm onUserCreated={setUser}/>}/>
                 <Route path="/items" element={<ItemList onBorrow={setBorrowingItem}/>}/>
                 <Route path="/items/new" element={<NewItemForm userId={userId}/>}/>
-                <Route path="/items/:itemId"
+                <Route path="/items/borrow/:itemId"
                        element={<ItemBorrowForm submitLoanProposal={submitLoanProposal}/>}/>
+                <Route path="/items/:itemId" element={<Item/>}/>
                 <Route path="/loans" element={<LoansList userId={userId}/>}/>
                 <Route path="/loans/:loanId" element={<Loan userId={userId}/>}/>
                 <Route path="/profile" element={<Profile userId={userId}/>}/>
                 <Route path="/chat" element={<Chats userId={userId}/>}/>
+                <Route path="/requests" element={<RequestList/>}/>
+                <Route path="/requests/new" element={<NewRequestForm userId={userId}/>}/>
                 <Route path="/logout" element={<Logout/>}/>
             </Routes>
+            <div className="ads-container">
+                <Ad/></div>
         </div>
     );
 }
