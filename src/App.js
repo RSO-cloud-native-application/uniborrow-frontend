@@ -644,10 +644,10 @@ function NewRequestForm(props) {
         const params = {
             "message": description,
             "timestampEnd": toDate.toISOString(),
-            "userId": props.userId.valueOf(),
+            "userId": parseInt(props.userId),
             "timestampStart": fromDate.toISOString(),
             "title": title,
-            "price": price.valueOf()
+            "price": price
         }
         axios.post(REQUESTS_API, params)
             .then(e => navigate("/"))
@@ -788,7 +788,7 @@ function App() {
                 <Route path="/items" element={<ItemList onBorrow={setBorrowingItem}/>}/>
                 <Route path="/items/new" element={<NewItemForm userId={userId}/>}/>
                 <Route path="/items/borrow/:itemId"
-                       element={<ItemBorrowForm/>}/>
+                       element={<ItemBorrowForm userId={userId}/>}/>
                 <Route path="/items/:itemId" element={<Item/>}/>
                 <Route path="/loans" element={<LoansList userId={userId}/>}/>
                 <Route path="/loans/:loanId" element={<Loan userId={userId}/>}/>
