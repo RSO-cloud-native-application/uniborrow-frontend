@@ -192,6 +192,7 @@ function ItemList(props) {
 
 function ItemBorrowForm(props) {
     const {itemId} = useParams()
+    const navigate = useNavigate()
     const [item, setItem] = useState({})
     const [price, setPrice] = useState(0)
     const [fromDate, setFromDate] = useState(new Date())
@@ -201,6 +202,22 @@ function ItemBorrowForm(props) {
     useEffect(() => {
         axios.get(ITEMS_API + "/" + itemId).then(res => setItem(res.data)).catch(e => alert(e.toString()))
     }, [])
+
+    function submitLoanProposal(item, description, fromDate, price, toDate) {
+        const params = {
+            "description": description,
+            "endTime": toDate.toISOString(),
+            "fromId": item.userId,
+            "itemId": item.itemId,
+            "proposedById": parseInt(props.userId),
+            "startTime": fromDate.toISOString(),
+            "toId": parseInt(props.userId),
+            "price": price
+        }
+        axios.post(LOANS_API + "/propose", params)
+            .then(e => navigate(-1))
+            .catch(e => alert(e.toString()))
+    }
 
     return <div className="item-borrow-form-wrp">
         <div className="item-borrow-form">
@@ -214,7 +231,7 @@ function ItemBorrowForm(props) {
             <div className="form-input">Price <input type="number" onChange={e => setPrice(e.target.value)}
                                                      value={price}/></div>
             <div className="button"
-                 onClick={() => props.submitLoanProposal(fromDate, toDate, description, price)}>Submit
+                 onClick={() => submitLoanProposal(item, description, fromDate, price, toDate)}>Submit
             </div>
             <BackButton/></div>
     </div>
@@ -565,12 +582,16 @@ function NewUserForm(props) {
 
     return <div className="profile-wrapper">
         <div className="profile-form">
-        <div className="form-input">Username:<input type="text" onChange={e => setUserName(e.target.value)} value={userName}/></div>
-        <div className="form-input">First Name:<input type="text" onChange={e => setFName(e.target.value)} value={fName}/></div>
-        <div className="form-input">Last Name:<input type="text" onChange={e => setLName(e.target.value)} value={lName}/></div>
-        <div className="form-input">Email:<input type="text" onChange={e => setEmail(e.target.value)} value={email}/></div>
-        <div className="button" onClick={createUser}>Create</div>
-        <BackButton/></div>
+            <div className="form-input">Username:<input type="text" onChange={e => setUserName(e.target.value)}
+                                                        value={userName}/></div>
+            <div className="form-input">First Name:<input type="text" onChange={e => setFName(e.target.value)}
+                                                          value={fName}/></div>
+            <div className="form-input">Last Name:<input type="text" onChange={e => setLName(e.target.value)}
+                                                         value={lName}/></div>
+            <div className="form-input">Email:<input type="text" onChange={e => setEmail(e.target.value)}
+                                                     value={email}/></div>
+            <div className="button" onClick={createUser}>Create</div>
+            <BackButton/></div>
     </div>
 }
 
@@ -723,22 +744,6 @@ function App() {
     const navigate = useNavigate();
     const [userId, setUserId] = useState(localUserId)
     const [borrowingItem, setBorrowingItem] = useState(null)
-
-    function submitLoanProposal(from, to, desc, price) {
-        const params = {
-            "description": desc,
-            "endTime": to.toISOString(),
-            "fromId": borrowingItem.userId,
-            "itemId": borrowingItem.itemId,
-            "proposedById": parseInt(userId),
-            "startTime": from.toISOString(),
-            "toId": parseInt(userId),
-            "price": price
-        }
-        axios.post(LOANS_API + "/propose", params)
-            .then(e => navigate(-1))
-            .catch(e => alert(e.toString()))
-    }
 
     async function checkUserExists(userName) {
         try {
