@@ -769,7 +769,7 @@ function App() {
             }
         } else {
             setUserId(null)
-            localStorage.setItem('userId', null)
+            localStorage.removeItem('userId')
         }
     }
 
