@@ -4,11 +4,10 @@ import axios from "axios";
 import {Routes, Route, Navigate, useNavigate, NavLink, useParams} from "react-router-dom";
 import DateTimePicker from 'react-datetime-picker';
 import logo from "./uniborrow.svg";
-import * as PropTypes from "prop-types";
 
 const LOANS_API = 'http://35.223.79.242/uniborrow-loans/v1/loans'
 const USERS_API = 'http://35.223.79.242/uniborrow-users/v1/users'
-const LOGIN_API = 'http://35.223.79.242/uniborrow-users/v1/users'
+const LOGIN_API = 'http://35.223.79.242/uniborrow-users/v1/login'
 const ITEMS_API = 'http://35.223.79.242/uniborrow-items/v1/items'
 const CASH_API = 'http://35.223.79.242/uniborrow-cash/v1/cash'
 const CHAT_API = 'http://35.223.79.242/uniborrow-chat/v1/chat'
@@ -759,8 +758,8 @@ function App() {
         if (userName != null) {
             const user = await checkUserExists(userName)
             if (user) {
-                localStorage.setItem('userId', user.id)
-                setUserId(user.id)
+                localStorage.setItem('userId', user.userId)
+                setUserId(user.userId)
             } else {
                 alert("User doesn't exist.")
             }
