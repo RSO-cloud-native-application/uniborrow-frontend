@@ -88,7 +88,7 @@ function LoginForm(props) {
     return <div className="login-form-wrp">
         <div className="login-form">
             <img src={logo}></img>
-            <div>UserId:</div>
+            <div>Username:</div>
             <div className="form-input"><input type="text" value={userInput}
                                                onChange={e => setUserInput(e.target.value)}/></div>
             <div className="button" onClick={() => props.onSubmit(userInput)}>Submit</div>
@@ -100,12 +100,11 @@ function LoginForm(props) {
 function ItemPreview(props) {
     const navigate = useNavigate()
     const item = props.item
-    return <div onClick={() => navigate("/items/" + item.itemId)} className="item">
+    return <div onClick={() => navigate("/items/" + item.id)} className="item">
         <div>{item.title}</div>
         <div className="image-wrapper"><img src={item.uri}/></div>
         <div>{item.description}</div>
         <div>{item.status}</div>
-        <div onClick={() => props.onBorrow(item)}>Borrow</div>
     </div>
 }
 
@@ -124,7 +123,7 @@ function Item() {
             <div className="image-wrapper"><img src={item.uri}/></div>
             <div>{item.description}</div>
             <div>{item.status}</div>
-            <div onClick={() => navigate("/items/borrow/" + itemId)}>Borrow</div>
+            <div onClick={() => navigate("/items/borrow/" + item.id)}>Borrow</div>
         </div>
         <div>
             <h1>Reviews</h1>
@@ -185,7 +184,7 @@ function ItemList(props) {
                                            value={searchParam}/>
             <div className="button" onClick={() => fetchData()}>Search</div>
         </div>
-        {items.map(item => <ItemPreview onBorrow={() => onBorrow(item)} item={item}/>)}
+        {items.map(item => <ItemPreview item={item}/>)}
         <div className="button" onClick={() => navigate("/items/new")}>Add New Item</div>
     </div>
 }
