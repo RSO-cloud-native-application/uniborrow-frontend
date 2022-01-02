@@ -743,7 +743,7 @@ function App() {
 
     async function checkUserExists(userName) {
         try {
-            const resp = await axios.get(LOGIN_API, {username: userName})
+            const resp = await axios.post(LOGIN_API, {username: userName})
             if (resp.status === 200) {
                 return resp.data
             } else {
