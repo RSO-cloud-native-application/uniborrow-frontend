@@ -86,17 +86,13 @@ function LoginForm(props) {
     const [userInput, setUserInput] = useState("")
     const navigate = useNavigate()
 
-    function submit() {
-        props.onSubmit(userInput)
-    }
-
     return <div className="login-form-wrp">
         <div className="login-form">
             <img src={logo}></img>
             <div>UserId:</div>
             <div className="form-input"><input type="text" value={userInput}
                                                onChange={e => setUserInput(e.target.value)}/></div>
-            <div className="button" onClick={() => submit()}>Submit</div>
+            <div className="button" onClick={() => props.onSubmit(userInput)}>Submit</div>
             <div className="button" onClick={() => navigate("/new")}>New User</div>
         </div>
     </div>
@@ -746,7 +742,6 @@ function App() {
     }
 
     async function checkUserExists(userName) {
-        return true
         try {
             const resp = await axios.get(LOGIN_API, {username: userName})
             if (resp.status === 200) {
