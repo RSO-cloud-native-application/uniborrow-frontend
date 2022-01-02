@@ -788,7 +788,7 @@ function App() {
                 <Route path="/items" element={<ItemList onBorrow={setBorrowingItem}/>}/>
                 <Route path="/items/new" element={<NewItemForm userId={userId}/>}/>
                 <Route path="/items/borrow/:itemId"
-                       element={<ItemBorrowForm submitLoanProposal={submitLoanProposal}/>}/>
+                       element={<ItemBorrowForm/>}/>
                 <Route path="/items/:itemId" element={<Item/>}/>
                 <Route path="/loans" element={<LoansList userId={userId}/>}/>
                 <Route path="/loans/:loanId" element={<Loan userId={userId}/>}/>
