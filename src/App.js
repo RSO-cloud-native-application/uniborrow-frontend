@@ -376,6 +376,14 @@ function Loan(props) {
     <div className="button" onClick={rejectLoan}>
         Reject Loan
     </div>}
+        {(loan.acceptedState === "ACCEPTED" && item.userId != props.userId) &&
+        <div className="button" onClick={()=>navigate("/userreview/" + loan.proposedById)}>
+            Write User Review
+        </div>}
+        {(loan.acceptedState === "ACCEPTED" && item.userId != props.userId) &&
+        <div className="button" onClick={()=>navigate("/itemreview/" + loan.proposedById)}>
+            Write Item Review
+        </div>}
     </div>
 }
 
@@ -627,6 +635,67 @@ function NewItemForm(props) {
 }
 
 
+
+function NewItemReviewForm(props) {
+    const navigate = useNavigate()
+    const {itemId} = useParams()
+
+    const [description, setDescription] = useState("")
+    const [stars, setStars] = useState("")
+
+    function sendReview() {
+        const item = {
+            "itemId": itemId,
+            "message": description,
+            "stars": stars,
+            "userReviewerId": props.userId
+        }
+        axios.post(ITEM_REVIEWS_API, item).then(() => navigate("/items")).catch(e => alert(e.toString()))
+    }
+
+    return <div className="add-item-form-wrp">
+        <div className="add-item-form">
+            <div className="form-input">Stars: <input type="Number" value={stars}
+                                                      onChange={e => setStars(e.target.value)}/></div>
+            <div className="form-input">Comment: <textarea type="number" value={description}
+                                                               onChange={e => setDescription(e.target.value)}/></div>
+            <div className="button" onClick={sendReview}>Add New Item</div>
+            <BackButton/>
+        </div>
+    </div>
+}
+
+
+function NewUserReview(props) {
+    const navigate = useNavigate()
+    const {userId} = useParams()
+
+    const [description, setDescription] = useState("")
+    const [stars, setStars] = useState("")
+
+    function sendReview() {
+        const item = {
+            "userId": userId,
+            "message": description,
+            "stars": stars,
+            "userReviewerId": props.userId
+        }
+        axios.post(USER_REVIEWS_API, item).then(() => navigate("/items")).catch(e => alert(e.toString()))
+    }
+
+    return <div className="add-item-form-wrp">
+        <div className="add-item-form">
+            <h1>New Item</h1>
+            <div className="form-input">Stars: <input type="Number" value={stars}
+                                                      onChange={e => setStars(e.target.value)}/></div>
+            <div className="form-input">Comment: <textarea type="number" value={description}
+                                                           onChange={e => setDescription(e.target.value)}/></div>
+            <div className="button" onClick={sendReview}>Add New Item</div>
+            <BackButton/>
+        </div>
+    </div>
+}
+
 function NewRequestForm(props) {
     const [title, setTitle] = useState("")
     const [price, setPrice] = useState("0")
@@ -791,6 +860,8 @@ function App() {
                 <Route path="/requests" element={<RequestList/>}/>
                 <Route path="/requests/new" element={<NewRequestForm userId={userId}/>}/>
                 <Route path="/logout" element={<Logout/>}/>
+                <Route path="/userreview/:userId" element={<NewUserReview userId={userId}/>}/>
+                <Route path="/itemreview/:itemId" element={<NewItemReviewForm userId={userId}/>}/>
             </Routes>
             <div className="ads-container">
                 <Ad/></div>
