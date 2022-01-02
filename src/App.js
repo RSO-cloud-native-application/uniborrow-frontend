@@ -291,7 +291,7 @@ function ReviewList(props) {
     const [reviews, setReviews] = useState([])
 
     useEffect(() => {
-        axios.get(ITEM_REVIEWS_API + props.itemId).then(e => setReviews(e.data)).catch((e) => setReviews([{
+        axios.get(ITEM_REVIEWS_API + "?itemId=" + props.itemId).then(e => setReviews(e.data)).catch((e) => setReviews([{
             "itemId": 2,
             "itemReviewId": 1,
             "message": "Zelo dober izdelek, priporočam.",
