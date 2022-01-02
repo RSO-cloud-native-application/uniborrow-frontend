@@ -174,11 +174,6 @@ function ItemList(props) {
         fetchData()
     }, [])
 
-    function onBorrow(item) {
-        props.onBorrow(item)
-        navigate("borrow/" + item.id)
-    }
-
     return <div className="item-list">
         <div className="search-row"><input type="text" onChange={e => setSearchParam(e.target.value)}
                                            value={searchParam}/>
@@ -194,7 +189,7 @@ function ItemBorrowForm(props) {
     const {itemId} = useParams()
     const navigate = useNavigate()
     const [item, setItem] = useState({})
-    const [price, setPrice] = useState(0)
+    const [price, setPrice] = useState("0")
     const [fromDate, setFromDate] = useState(new Date())
     const [toDate, setToDate] = useState(new Date())
     const [description, setDescription] = useState("")
@@ -212,7 +207,7 @@ function ItemBorrowForm(props) {
             "proposedById": parseInt(props.userId),
             "startTime": fromDate.toISOString(),
             "toId": parseInt(props.userId),
-            "price": price
+            "price": parseFloat(price)
         }
         axios.post(LOANS_API + "/propose", params)
             .then(e => navigate(-1))
@@ -634,7 +629,7 @@ function NewItemForm(props) {
 
 function NewRequestForm(props) {
     const [title, setTitle] = useState("")
-    const [price, setPrice] = useState(0)
+    const [price, setPrice] = useState("0")
     const [fromDate, setFromDate] = useState(new Date())
     const [toDate, setToDate] = useState(new Date())
     const [description, setDescription] = useState("")
@@ -647,7 +642,7 @@ function NewRequestForm(props) {
             "userId": parseInt(props.userId),
             "timestampStart": fromDate.toISOString(),
             "title": title,
-            "price": price
+            "price": parseFloat(price)
         }
         axios.post(REQUESTS_API, params)
             .then(e => navigate("/"))
@@ -743,7 +738,6 @@ function App() {
     let localUserId = localStorage.getItem('userId')
     const navigate = useNavigate();
     const [userId, setUserId] = useState(localUserId)
-    const [borrowingItem, setBorrowingItem] = useState(null)
 
     async function checkUserExists(userName) {
         try {
@@ -785,7 +779,7 @@ function App() {
                     <div><LoginForm onSubmit={userName => setUser(userName)}/>
                     </div>}/>
                 <Route path="/new" element={<NewUserForm onUserCreated={setUserId}/>}/>
-                <Route path="/items" element={<ItemList onBorrow={setBorrowingItem}/>}/>
+                <Route path="/items" element={<ItemList />}/>
                 <Route path="/items/new" element={<NewItemForm userId={userId}/>}/>
                 <Route path="/items/borrow/:itemId"
                        element={<ItemBorrowForm userId={userId}/>}/>
