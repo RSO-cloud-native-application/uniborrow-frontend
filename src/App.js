@@ -780,7 +780,7 @@ function App() {
                 <Route path="/" element={userId ? <Navigate to="/items"/> :
                     <div><LoginForm onSubmit={userName => setUser(userName)}/>
                     </div>}/>
-                <Route path="/new" element={<NewUserForm onUserCreated={setUser}/>}/>
+                <Route path="/new" element={<NewUserForm onUserCreated={setUserId}/>}/>
                 <Route path="/items" element={<ItemList onBorrow={setBorrowingItem}/>}/>
                 <Route path="/items/new" element={<NewItemForm userId={userId}/>}/>
                 <Route path="/items/borrow/:itemId"
