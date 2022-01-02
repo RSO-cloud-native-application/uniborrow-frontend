@@ -354,6 +354,14 @@ function Loan(props) {
         axios.post(LOANS_API + "/" + loanId + "/" + "reject").then(e => navigate("/loans"))
     }
 
+    function getRightUserId(){
+        if(loan.fromId != props.userId){
+            return loan.fromId
+        }else{
+            return loan.toId
+        }
+    }
+
     return <div className="loan-info-wrp">
         <div className="loan-info">
             Loan Info
@@ -376,12 +384,12 @@ function Loan(props) {
     <div className="button" onClick={rejectLoan}>
         Reject Loan
     </div>}
-        {(loan.acceptedState === "ACCEPTED" && item.userId != props.userId) &&
-        <div className="button" onClick={()=>navigate("/userreview/" + loan.proposedById)}>
+        {(loan.acceptedState === "ACCEPTED") &&
+        <div className="button" onClick={()=>navigate("/userreview/" +getRightUserId())}>
             Write User Review
         </div>}
         {(loan.acceptedState === "ACCEPTED" && item.userId != props.userId) &&
-        <div className="button" onClick={()=>navigate("/itemreview/" + loan.proposedById)}>
+        <div className="button" onClick={()=>navigate("/itemreview/" + loan.itemId)}>
             Write Item Review
         </div>}
     </div>
@@ -659,7 +667,7 @@ function NewItemReviewForm(props) {
                                                       onChange={e => setStars(e.target.value)}/></div>
             <div className="form-input">Comment: <textarea type="number" value={description}
                                                                onChange={e => setDescription(e.target.value)}/></div>
-            <div className="button" onClick={sendReview}>Add New Item</div>
+            <div className="button" onClick={sendReview}>Add Item Review</div>
             <BackButton/>
         </div>
     </div>
@@ -685,12 +693,11 @@ function NewUserReview(props) {
 
     return <div className="add-item-form-wrp">
         <div className="add-item-form">
-            <h1>New Item</h1>
             <div className="form-input">Stars: <input type="Number" value={stars}
                                                       onChange={e => setStars(e.target.value)}/></div>
             <div className="form-input">Comment: <textarea type="number" value={description}
                                                            onChange={e => setDescription(e.target.value)}/></div>
-            <div className="button" onClick={sendReview}>Add New Item</div>
+            <div className="button" onClick={sendReview}>Add User Review</div>
             <BackButton/>
         </div>
     </div>
