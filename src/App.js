@@ -685,8 +685,8 @@ function AcceptRequestForm(props) {
     const [category, setCategory] = useState("")
     const [price, setPrice] = useState("0")
     const [url, setUrl] = useState("")
-    const [fromDate, setFromDate] = useState(new Date())
-    const [toDate, setToDate] = useState(new Date())
+    const [fromDate, setFromDate] = useState("")
+    const [toDate, setToDate] = useState("")
     const [description, setDescription] = useState("")
     const [userTo, setUserTo] = useState(0)
     const [requestLoaded, setRequestLoaded] = useState(false)
@@ -698,8 +698,8 @@ function AcceptRequestForm(props) {
     }, [])
 
     function setRequest(request) {
-        setFromDate(new Date(request.timestampStart))
-        setToDate(new Date(request.timestampEnd))
+        setFromDate(request.timestampStart)
+        setToDate(request.timestampEnd)
         setPrice(request.price)
         setTitle(request.title)
         setUserTo(request.userId)
@@ -720,11 +720,11 @@ function AcceptRequestForm(props) {
     function submitLoanProposal(itemId) {
         const params = {
             "description": description,
-            "endTime": toDate.toISOString(),
+            "endTime": toDate,
             "fromId": props.userId,
             "itemId": itemId,
             "proposedById": parseInt(props.userId),
-            "startTime": fromDate.toISOString(),
+            "startTime": fromDate,
             "toId": userTo,
             "price": parseFloat(price)
         }
