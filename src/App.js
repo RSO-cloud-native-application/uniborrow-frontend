@@ -409,7 +409,7 @@ function CashInfo(props) {
     const navigate = useNavigate()
 
     async function addCash() {
-        await axios.post(CASH_API + "/" + props.userId + "/add?amount=" + cashToAdd + "&currency=" + currency).then(e => navigate("/profile")).catch(e => alert(e.toString()))
+        await axios.post(CASH_API + "/" + props.userId + "/add?amount=" + cashToAdd + "&currency=" + currency).then(e => navigate("/profile"))
         await fetchData(currency)
     }
 
@@ -802,6 +802,27 @@ function UserLink(props) {
     return <div className="userlink" onClick={() => navigate("/users/" + props.userId)}>{username}</div>
 }
 
+function NewMessage(props) {
+    const [newMessage, setNewMessage] = useState("")
+
+    function sendMessage() {
+        axios.post(CHAT_API, {
+            "message": newMessage,
+            "userFromId": props.fromUserId,
+            "userToId": props.toUserId
+        }).then(e => {
+            setNewMessage("")
+        }).catch(err => alert(err.toString()))
+    }
+    return <div className="write-blog-wrapper">
+        <div className="form-input msg-input"><input className="msg-txt-input" type="text" value={newMessage}
+                                                     onChange={e => setNewMessage(e.target.value)}/>
+            <div className="button" onClick={sendMessage}>Send</div>
+        </div>
+    </div>
+}
+
+
 function OtherUserInfo(props) {
     const {userId} = useParams()
     const [user, setUser] = useState("")
@@ -824,6 +845,7 @@ function OtherUserInfo(props) {
             </div>
             <h1>User Reviews</h1>
             {reviews.map(review => <Review review={review}/>)}
+            <NewMessage fromUserId={props.userId} toUserId={userId}/>
         </div>
     </div>
 }
@@ -895,7 +917,7 @@ function App() {
                 <Route path="/userreview/:userId" element={<NewUserReview userId={userId}/>}/>
                 <Route path="/itemreview/:itemId" element={<NewItemReviewForm userId={userId}/>}/>
                 <Route path="/blog" element={<Blog userId={userId}/>}/>
-                <Route path="/users/:userId" element={<OtherUserInfo/>}/>
+                <Route path="/users/:userId" element={<OtherUserInfo userId={userId}/>}/>
             </Routes>
             <div className="ads-container">
                 <Ad/></div>

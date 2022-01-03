@@ -21,9 +21,13 @@
 }
 
 .write-blog-wrapper{
-    width: 80%;
     display: flex;
     flex-direction: column;
+    margin: 20px;
+    background-color: beige;
+    padding: 20px;
+    border: 1px solid;
+    border-radius: 5px;
 }
 
 .userlink{
