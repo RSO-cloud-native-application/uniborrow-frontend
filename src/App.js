@@ -119,7 +119,7 @@ function Item() {
             <div className="image-wrapper"><img src={item.uri}/></div>
             <div>{item.description}</div>
             <div>{item.status}</div>
-            <UserLink userId={item.userId}/>
+            <UserLink key={item.title} userId={item.userId}/>
             <div onClick={() => navigate("/items/borrow/" + itemId)}>Borrow</div>
         </div>
         <div>
@@ -272,17 +272,17 @@ function Blog(props) {
             "text": newMessage,
             "title": title,
             "userId": props.userId
-        }).then(() => navigate(-1)).catch(er=>alert(er.toString()))
+        }).then(() => navigate(-1)).catch(er => alert(er.toString()))
     }
 
     return <div className="blog">
         {blogEntries.map(entry => <BlogEntry entry={entry}/>)}
-        <div className="form-input msg-input">Title:<input className="msg-txt-input" type="text" value={title}
-                                                           onChange={e => setTitle(e.target.value)}/>
+        <div className="write-blog-wrapper">
+            <div className="form-input msg-input">Title:<input className="msg-txt-input" type="text" value={title}
+                                                               onChange={e => setTitle(e.target.value)}/></div>
             <div className="form-input msg-input"><textarea className="msg-txt-input" type="text" value={newMessage}
-                                                            onChange={e => setNewMessage(e.target.value)}/>
-                <div className="button" onClick={sendMessage}>Send</div>
-            </div>
+                                                            onChange={e => setNewMessage(e.target.value)}/></div>
+            <div className="button" onClick={sendMessage}>Send</div>
         </div>
     </div>
 

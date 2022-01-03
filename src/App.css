@@ -20,6 +20,12 @@
     cursor: pointer;
 }
 
+.write-blog-wrapper{
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+}
+
 .blog-entry {
     background-color: #bcffc4;
     border-radius: 5px;
