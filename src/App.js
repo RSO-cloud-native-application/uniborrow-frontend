@@ -104,10 +104,14 @@ function ItemPreview(props) {
     </div>
 }
 
-function Item() {
+function Item(props) {
     const {itemId} = useParams()
     const [item, setItem] = useState({})
     const navigate = useNavigate()
+
+    function deleteItem() {
+        axios.delete(ITEMS_API + "/" + itemId).then(e => navigate(-1)).catch(e => alert(e.toString()))
+    }
 
     useEffect(() => {
         axios.get(ITEMS_API + "/" + itemId).then((e) => setItem(e.data)).catch((e) => alert(e.toString()))
@@ -120,7 +124,8 @@ function Item() {
             <div>{item.description}</div>
             <div>{item.status}</div>
             <UserLink key={item.title} userId={item.userId}/>
-            <div onClick={() => navigate("/items/borrow/" + itemId)}>Borrow</div>
+            {item.userId == props.userId ? <div onClick={deleteItem}>Delete Item</div> :
+                <div onClick={() => navigate("/items/borrow/" + itemId)}>Borrow</div>}
         </div>
         <div>
             <h1>Reviews</h1>
@@ -204,6 +209,10 @@ function RequestPreview(props) {
     const request = props.request
     const navigate = useNavigate()
 
+    function deleteRequest() {
+        axios.delete(REQUESTS_API + "/" + request.id).then(e => navigate(-1)).catch(e => alert(e.toString()))
+    }
+
     return <div className="item">
         <div>
             {request.title}
@@ -214,9 +223,10 @@ function RequestPreview(props) {
         </div>
         <div>{request.price}</div>
         <UserLink userId={props.request.userId}/>
-        <div className="acceopt-request" onClick={() => navigate("/requests/accept/" + props.request.id)}>Accept
-            Request
-        </div>
+        {props.userId == request.userId ? <div onClick={deleteRequest}> Delete Request</div> :
+            <div className="acceopt-request" onClick={() => navigate("/requests/accept/" + props.request.id)}>Accept
+                Request
+            </div>}
     </div>
 }
 
@@ -230,7 +240,7 @@ function RequestList(props) {
     }, [])
 
     return <div className="requests-container"><h1>Requests</h1>
-        {requests.map(request => <RequestPreview request={request}/>)}
+        {requests.map(request => <RequestPreview userId={props.userId} request={request}/>)}
         <div className="button" onClick={() => navigate("/requests/new")}>Add New Request</div>
     </div>
 }
@@ -814,6 +824,7 @@ function NewMessage(props) {
             setNewMessage("")
         }).catch(err => alert(err.toString()))
     }
+
     return <div className="write-blog-wrapper">
         Send a message to the user
         <div className="form-input msg-input"><input className="msg-txt-input" type="text" value={newMessage}
@@ -906,12 +917,12 @@ function App() {
                 <Route path="/items/new" element={<NewItemForm userId={userId}/>}/>
                 <Route path="/items/borrow/:itemId"
                        element={<ItemBorrowForm userId={userId}/>}/>
-                <Route path="/items/:itemId" element={<Item/>}/>
+                <Route path="/items/:itemId" element={<Item userId={userId}/>}/>
                 <Route path="/loans" element={<LoansList userId={userId}/>}/>
                 <Route path="/loans/:loanId" element={<Loan userId={userId}/>}/>
                 <Route path="/profile" element={<Profile userId={userId}/>}/>
                 <Route path="/chat" element={<Chats userId={userId}/>}/>
-                <Route path="/requests" element={<RequestList/>}/>
+                <Route path="/requests" element={<RequestList userId={userId}/>}/>
                 <Route path="/requests/new" element={<NewRequestForm userId={userId}/>}/>
                 <Route path="/requests/accept/:requestId" element={<AcceptRequestForm userId={userId}/>}/>
                 <Route path="/logout" element={<Logout/>}/>
