@@ -15,6 +15,16 @@
     cursor: pointer;
 }
 
+.acceopt-request{
+    cursor: pointer;
+}
+
+.blog-entry{
+    background-color: #b9f6e7;
+    border-radius: 5px;
+    border: 1px solid;
+}
+
 .chat{
     background-color: whitesmoke;
     width: 80%;

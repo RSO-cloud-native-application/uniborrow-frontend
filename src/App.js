@@ -4,6 +4,7 @@ import axios from "axios";
 import {Routes, Route, Navigate, useNavigate, NavLink, useParams} from "react-router-dom";
 import DateTimePicker from 'react-datetime-picker';
 import logo from "./uniborrow.svg";
+import * as PropTypes from "prop-types";
 
 const LOANS_API = 'http://35.223.79.242/uniborrow-loans/v1/loans'
 const USERS_API = 'http://35.223.79.242/uniborrow-users/v1/users'
@@ -16,17 +17,12 @@ const ITEM_REVIEWS_API = REVIEWS_API + "items/"
 const USER_REVIEWS_API = REVIEWS_API + "users/"
 const REQUESTS_API = 'http://35.223.79.242/uniborrow-requests/v1/requests'
 const ADS_API = 'http://35.223.79.242/uniborrow-ads/v1/ads'
+const BLOGS_API = 'http://35.223.79.242/uniborrow-blogs/v1/blogs'
 
 function Ad() {
     const [ad, setAd] = useState({url: "", imageUrl: ""})
-    const testAd = {
-        "id": 1,
-        "imageUrl": "https://www.fri.uni-lj.si/sites/all/themes/fri_theme/images/fri_logo.png",
-        "targetAudience": "FIFTEEN_TO_18",
-        "url": "https://www.fri.uni-lj.si/sl"
-    }
     useEffect(() => {
-        axios.get(ADS_API).then(e => setAd(e.data)).catch(er => setAd(testAd))
+        axios.get(ADS_API).then(e => setAd(e.data)).catch(er => alert(er.toString()))
     }, [])
     return <img onClick={() => window.open(ad.url)} src={ad.imageUrl} className="ad">
     </img>
@@ -137,37 +133,8 @@ function ItemList(props) {
     const [items, setItems] = useState([])
     const [searchParam, setSearchParam] = useState("")
 
-    const testItems = [{
-        "category": "Books",
-        "description": "Novel written by Leo Tolstoy.",
-        "id": 1,
-        "score": 1325,
-        "status": "Available",
-        "title": "War and Peace",
-        "uri": "https://images-na.ssl-images-amazon.com/images/I/51J1nb00FLL._SX330_BO1,204,203,200_.jpg",
-        "userId": 1
-    }, {
-        "category": "Vehicle",
-        "description": "The ultimate bike for mountain off-road adventures! The most successful \"solid\" with a new \"racing\" geometry for even more power, stability and precision!",
-        "id": 2,
-        "score": 1325,
-        "status": "Available",
-        "title": "Mountain bike Olympia F1",
-        "uri": "https://bike-shop.si/content/images/thumbs/0002065_gorsko-kolo-lf-sonora-29.jpeg",
-        "userId": 1
-    }, {
-        "category": "Musical Instruments",
-        "description": "The Yamaha F310 is everything youve been looking for. It combines superb value for money with Yamahas long heritage of creating high-quality instruments. This F310 Acoustic is no exception to their meticulous standards.",
-        "id": 3,
-        "score": 1325,
-        "status": "Available",
-        "title": "Guitar",
-        "uri": "https://d1aeri3ty3izns.cloudfront.net/media/68/681431/1200/preview.jpg",
-        "userId": 1
-    }]
-
     function fetchData() {
-        axios.get(ITEMS_API + "/?filter=title:LIKEIC:%" + searchParam + "%,description:LIKEIC:%" + searchParam + "%").then(response => setItems(response.data)).catch(re => setItems(testItems))
+        axios.get(ITEMS_API + "/?filter=title:LIKEIC:%" + searchParam + "%,description:LIKEIC:%" + searchParam + "%").then(response => setItems(response.data)).catch(re => alert(re.toString()))
     }
 
     useEffect(() => {
@@ -234,6 +201,7 @@ function ItemBorrowForm(props) {
 
 function RequestPreview(props) {
     const request = props.request
+    const navigate = useNavigate()
 
     return <div className="item">
         <div>
@@ -244,6 +212,9 @@ function RequestPreview(props) {
             <div>{request.timestampStart.substr(0, 10)} - {request.timestampEnd.substr(0, 10)}</div>
         </div>
         <div>{request.price}</div>
+        <div className="acceopt-request" onClick={() => navigate("/requests/accept/" + props.request.id)}>Accept
+            Request
+        </div>
     </div>
 }
 
@@ -251,26 +222,9 @@ function RequestPreview(props) {
 function RequestList(props) {
     const [requests, setRequests] = useState([])
     const navigate = useNavigate();
-    const testRequests = [{
-        "id": 1,
-        "message": "Hello, Im looking for a book called Ana Karenina.",
-        "price": 1.5,
-        "timestampEnd": "2021-03-03T13:13:13Z",
-        "timestampStart": "2020-02-02T12:12:12Z",
-        "title": "Ana Karenina",
-        "userId": 2
-    }, {
-        "id": 2,
-        "message": "Im looking for the new rollerblades for my son.",
-        "price": 1.5,
-        "timestampEnd": "2021-03-03T13:13:13Z",
-        "timestampStart": "2020-02-02T12:12:12Z",
-        "title": "Rollerblades",
-        "userId": 2
-    }]
 
     useEffect(() => {
-        axios.get(REQUESTS_API).then(e => setRequests(e.data)).catch(e => setRequests(testRequests))
+        axios.get(REQUESTS_API).then(e => setRequests(e.data)).catch(e =>alert(e.toString()))
     }, [])
 
     return <div className="requests-container"><h1>Requests</h1>
@@ -287,8 +241,31 @@ function NavBar() {
         <NavLink to="/loans">My Loans</NavLink>
         <NavLink to="/profile">My Profile</NavLink>
         <NavLink to="/chat">Messages</NavLink>
+        <NavLink to="/blog">Blog</NavLink>
         <NavLink to="/logout">Logout</NavLink>
     </div>
+}
+
+function BlogEntry(props) {
+    const entry = props.entry
+    return <div className="blog-entry">
+        <h1>{entry.title}</h1>
+        <div>{entry.text}</div>
+    </div>
+}
+
+
+function Blog(){
+    const [blogEntries, setBlogEntries] = useState([])
+
+    useEffect(()=>{
+        axios.get(BLOGS_API).then(e=>setBlogEntries(e.data)).catch(e=>alert(e.toString()))
+    })
+
+    return <div className="blog">
+        {blogEntries.map(entry=> <BlogEntry entry={entry}/>)}
+    </div>
+
 }
 
 function Review(props) {
@@ -354,10 +331,10 @@ function Loan(props) {
         axios.post(LOANS_API + "/" + loanId + "/" + "reject").then(e => navigate("/loans"))
     }
 
-    function getRightUserId(){
-        if(loan.fromId != props.userId){
+    function getRightUserId() {
+        if (loan.fromId != props.userId) {
             return loan.fromId
-        }else{
+        } else {
             return loan.toId
         }
     }
@@ -385,11 +362,11 @@ function Loan(props) {
         Reject Loan
     </div>}
         {(loan.acceptedState === "ACCEPTED") &&
-        <div className="button" onClick={()=>navigate("/userreview/" +getRightUserId())}>
+        <div className="button" onClick={() => navigate("/userreview/" + getRightUserId())}>
             Write User Review
         </div>}
         {(loan.acceptedState === "ACCEPTED" && item.userId != props.userId) &&
-        <div className="button" onClick={()=>navigate("/itemreview/" + loan.itemId)}>
+        <div className="button" onClick={() => navigate("/itemreview/" + loan.itemId)}>
             Write Item Review
         </div>}
     </div>
@@ -398,69 +375,9 @@ function Loan(props) {
 function LoansList(props) {
     const userId = props.userId
     const [loans, setLoans] = useState([])
-    const testLoans = [{
-        "acceptedState": "ACCEPTED",
-        "description": "This is a very good loan.",
-        "endTime": "2006-01-01T17:36:38Z",
-        "fromId": 1280,
-        "id": 1,
-        "itemId": 123213,
-        "proposedById": 1280,
-        "startTime": "2006-01-01T15:36:38Z",
-        "toId": 1325
-    }, {
-        "acceptedState": "REJECTED",
-        "description": "This is a very good loan.",
-        "endTime": "2006-01-01T17:36:38Z",
-        "fromId": 12,
-        "id": 2,
-        "itemId": 1,
-        "proposedById": 1280,
-        "startTime": "2006-01-01T15:36:38Z",
-        "toId": 1325
-    }, {
-        "acceptedState": "ACCEPTED",
-        "description": "sdas",
-        "endTime": "2021-12-29T14:40:44.252Z",
-        "fromId": 1,
-        "id": 4,
-        "itemId": 1,
-        "proposedById": 2,
-        "startTime": "2021-12-29T14:40:44.252Z",
-        "toId": 2
-    }, {
-        "acceptedState": "ACCEPTED",
-        "description": "This is a very good loan.",
-        "endTime": "2006-01-01T17:36:38Z",
-        "fromId": 12,
-        "id": 3,
-        "itemId": 12,
-        "proposedById": 25,
-        "startTime": "2006-01-01T15:36:38Z",
-        "toId": 25
-    }, {
-        "acceptedState": "ACCEPTED",
-        "description": "waaa",
-        "endTime": "2021-12-29T15:46:50.580Z",
-        "fromId": 1,
-        "id": 5,
-        "itemId": 3,
-        "proposedById": 2,
-        "startTime": "2021-12-29T15:46:50.580Z",
-        "toId": 2
-    }, {
-        "acceptedState": "PENDING",
-        "description": "I really want it dude please.",
-        "endTime": "2021-12-31T17:24:41.096Z",
-        "fromId": 1,
-        "id": 6,
-        "itemId": 2,
-        "proposedById": 3,
-        "startTime": "2021-12-29T17:24:41.096Z",
-        "toId": 3
-    }]
+
     useEffect(() => {
-        axios.get(LOANS_API + "?filter=fromId:EQ:" + userId + ",toId:EQ:" + userId).then(response => setLoans(response.data)).catch(e => setLoans(testLoans))
+        axios.get(LOANS_API + "?filter=fromId:EQ:" + userId + ",toId:EQ:" + userId).then(response => setLoans(response.data)).catch(e => alert(e.toString()))
     }, [])
 
     return <div className="loan-list">
@@ -643,7 +560,6 @@ function NewItemForm(props) {
 }
 
 
-
 function NewItemReviewForm(props) {
     const navigate = useNavigate()
     const {itemId} = useParams()
@@ -666,7 +582,7 @@ function NewItemReviewForm(props) {
             <div className="form-input">Stars: <input type="Number" value={stars}
                                                       onChange={e => setStars(e.target.value)}/></div>
             <div className="form-input">Comment: <textarea type="number" value={description}
-                                                               onChange={e => setDescription(e.target.value)}/></div>
+                                                           onChange={e => setDescription(e.target.value)}/></div>
             <div className="button" onClick={sendReview}>Add Item Review</div>
             <BackButton/>
         </div>
@@ -746,36 +662,93 @@ function NewRequestForm(props) {
 }
 
 
+function AcceptRequestForm(props) {
+
+    const {requestId} = useParams()
+
+    const [title, setTitle] = useState("")
+    const [category, setCategory] = useState("")
+    const [price, setPrice] = useState("0")
+    const [url, setUrl] = useState("")
+    const [fromDate, setFromDate] = useState(new Date())
+    const [toDate, setToDate] = useState(new Date())
+    const [description, setDescription] = useState("")
+    const [userTo, setUserTo] = useState(0)
+    const [requestLoaded, setRequestLoaded] = useState(false)
+    const navigate = useNavigate();
+
+
+    useEffect(() => {
+        axios.get(REQUESTS_API + "/" + requestId).then(e => setRequest(e.data)).catch(e => alert(e.toString()))
+    }, [])
+
+    function setRequest(request) {
+        setFromDate(new Date(request.timestampStart))
+        setToDate(new Date(request.timestampEnd))
+        setPrice(request.price)
+        setTitle(request.title)
+        setUserTo(request.userId)
+        setRequest(true)
+    }
+
+    function addNewItem() {
+        const item = {
+            "category": category,
+            "description": description,
+            "userId": props.userId,
+            "title": title,
+            "uri": url
+        }
+        axios.post(ITEMS_API, item).then((e) => submitLoanProposal(e.data.id)).catch(e => alert(e.toString()))
+    }
+
+    function submitLoanProposal(itemId) {
+        const params = {
+            "description": description,
+            "endTime": toDate.toISOString(),
+            "fromId": props.userId,
+            "itemId": itemId,
+            "proposedById": parseInt(props.userId),
+            "startTime": fromDate.toISOString(),
+            "toId": userTo,
+            "price": parseFloat(price)
+        }
+        axios.post(LOANS_API + "/propose", params)
+            .then(e => navigate(-1))
+            .catch(e => alert(e.toString()))
+    }
+
+
+    return <div className="item-borrow-form-wrp">
+        {requestLoaded ?
+            <div className="item-borrow-form">
+                <h1>Accepting Request</h1>
+                <div className="form-input">Item Title <input type="text" onChange={e => setTitle(e.target.value)}
+                                                              value={title}/></div>
+                <div className="form-input">Description <textarea className="desc-txt-area"
+                                                                  onChange={e => setDescription(e.target.value)}
+                                                                  value={description} type="text"/>
+                </div>
+                <div className="form-input">Price <input type="number" onChange={e => setPrice(e.target.value)}
+                                                         value={price}/></div>
+                <div className="form-input">Category <input type="text" onChange={e => setCategory(e.target.value)}
+                                                            value={category}/></div>
+                <div className="form-input">Item image URL <input type="text" onChange={e => setUrl(e.target.value)}
+                                                                  value={url}/></div>
+                <div>Date from: {fromDate}</div>
+                <div>Date to: {toDate}</div>
+                <div className="button"
+                     onClick={addNewItem}>Submit
+                </div>
+                <BackButton/></div> : <div>Loading...</div>}
+    </div>
+}
+
 function TransactionsInfo(props) {
-    const testTransaktions = [{
-        "cash": 123.0,
-        "fromId": 1,
-        "id": 1,
-        "timestamp": "2020-01-01T15:36:38Z",
-        "toId": 2
-    }, {"cash": 1.0, "fromId": 1, "id": 2, "timestamp": "2021-12-31T10:00:05.559610Z", "toId": 1}, {
-        "cash": 1.0,
-        "fromId": 1,
-        "id": 3,
-        "timestamp": "2021-12-31T10:00:19.054621Z",
-        "toId": 1
-    }, {"cash": 1.0, "fromId": 1, "id": 4, "timestamp": "2021-12-31T10:00:25.805766Z", "toId": 1}, {
-        "cash": 1.0,
-        "fromId": 1,
-        "id": 5,
-        "timestamp": "2021-12-31T10:00:32.256156Z",
-        "toId": 1
-    }, {"cash": 1.0, "fromId": 1, "id": 6, "timestamp": "2021-12-31T10:00:51.366634Z", "toId": 1}, {
-        "cash": 1.0,
-        "fromId": 1,
-        "id": 7,
-        "timestamp": "2021-12-31T10:00:55.342849Z",
-        "toId": 1
-    }, {"cash": 1.0, "fromId": 1, "id": 8, "timestamp": "2021-12-31T10:01:00.071249Z", "toId": 1}]
     const [transactions, setTransactions] = useState([])
 
     useEffect(() => {
-        axios.get(CASH_API + "/transactions/" + props.userId).then(res => setTransactions(res.data)).catch(e => setTransactions(testTransaktions))
+        axios.get(CASH_API + "/transactions/" + props.userId).then(res => setTransactions(res.data)).catch(e => alert(e.toString()))
     }, [])
 
     function amountFromTransaction(cash, fromId, toId) {
@@ -855,7 +828,7 @@ function App() {
                     <div><LoginForm onSubmit={userName => setUser(userName)}/>
                     </div>}/>
                 <Route path="/new" element={<NewUserForm onUserCreated={setUserId}/>}/>
-                <Route path="/items" element={<ItemList />}/>
+                <Route path="/items" element={<ItemList/>}/>
                 <Route path="/items/new" element={<NewItemForm userId={userId}/>}/>
                 <Route path="/items/borrow/:itemId"
                        element={<ItemBorrowForm userId={userId}/>}/>
@@ -866,6 +839,7 @@ function App() {
                 <Route path="/chat" element={<Chats userId={userId}/>}/>
                 <Route path="/requests" element={<RequestList/>}/>
                 <Route path="/requests/new" element={<NewRequestForm userId={userId}/>}/>
+                <Route path="/requests/accept/:requestId" element={<AcceptRequestForm userId={userId}/>}/>
                 <Route path="/logout" element={<Logout/>}/>
                 <Route path="/userreview/:userId" element={<NewUserReview userId={userId}/>}/>
                 <Route path="/itemreview/:itemId" element={<NewItemReviewForm userId={userId}/>}/>
