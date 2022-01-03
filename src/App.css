@@ -16,7 +16,7 @@
     cursor: pointer;
 }
 
-.acceopt-request {
+.acceopt-request,actual-item {
     cursor: pointer;
 }
 

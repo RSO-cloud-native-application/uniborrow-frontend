@@ -118,14 +118,14 @@ function Item(props) {
     }, [])
 
     return <div>
-        <div className="item">
+        <div className="item actual-item">
             <div>{item.title}</div>
             <div className="image-wrapper"><img src={item.uri}/></div>
             <div>{item.description}</div>
             <div>{item.status}</div>
             <UserLink key={item.title} userId={item.userId}/>
-            {item.userId == props.userId ? <div onClick={deleteItem}>Delete Item</div> :
-                <div onClick={() => navigate("/items/borrow/" + itemId)}>Borrow</div>}
+            {item.userId == props.userId ? <div className="acceopt-request"  onClick={deleteItem}>Delete Item</div> :
+                <div className="acceopt-request"  onClick={() => navigate("/items/borrow/" + itemId)}>Borrow</div>}
         </div>
         <div>
             <h1>Reviews</h1>
@@ -223,7 +223,7 @@ function RequestPreview(props) {
         </div>
         <div>{request.price}</div>
         <UserLink userId={props.request.userId}/>
-        {props.userId == request.userId ? <div onClick={deleteRequest}> Delete Request</div> :
+        {props.userId == request.userId ? <div className="acceopt-request"  onClick={deleteRequest}> Delete Request</div> :
             <div className="acceopt-request" onClick={() => navigate("/requests/accept/" + props.request.id)}>Accept
                 Request
             </div>}
