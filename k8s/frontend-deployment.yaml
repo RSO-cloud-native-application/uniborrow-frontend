@@ -13,7 +13,7 @@ spec:
         app: uniborrow-frontend
     spec:
       containers:
-        - image: efodx/uniborrow-frontend:2021-12-31-20-54-12
+        - image: efodx/uniborrow-frontend:2022-01-04-03-03-57
           name: uniborrow-frontend
           ports:
             - containerPort: 80
