@@ -799,7 +799,7 @@ function UserLink(props) {
         axios.get(USERS_API + "/" + props.userId).then(e => setUserName(e.data.username)).catch(e => console.log(e.toString()))
     }, [])
 
-    return <div onClick={() => navigate("/users/" + props.userId)}>{username}</div>
+    return <div className="userlink" onClick={() => navigate("/users/" + props.userId)}>{username}</div>
 }
 
 function OtherUserInfo(props) {

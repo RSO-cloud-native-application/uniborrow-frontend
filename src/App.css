@@ -26,6 +26,10 @@
     flex-direction: column;
 }
 
+.userlink{
+    cursor: pointer;
+}
+
 .blog-entry {
     background-color: #bcffc4;
     border-radius: 5px;
