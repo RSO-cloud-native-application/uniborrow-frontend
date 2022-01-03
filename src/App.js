@@ -361,7 +361,7 @@ function Loan(props) {
             <div>Period:{loan.startTime && loan.startTime.substr(0, 10)} - {loan.endTime && loan.endTime.substr(0, 10)}</div>
             <div>Price:{loan.price}EUR</div>
             <div>State:{loan.acceptedState}</div>
-            <div>With: <UserLink userId={getRightUserId()}/></div>
+            <div>With: <UserLink key={loan.toId} userId={getRightUserId()}/></div>
         </div>
         <div className="loan-info">
             Item Info
