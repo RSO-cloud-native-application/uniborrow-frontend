@@ -276,6 +276,9 @@ div > .button {
     border-bottom: 1px solid black;
     text-overflow: ellipsis;
 }
+.loan{
+    cursor: pointer;
+}
 
 .item > div {
     overflow: auto;

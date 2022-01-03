@@ -125,7 +125,7 @@ function Item(props) {
             <div>{item.status}</div>
             <UserLink key={item.title} userId={item.userId}/>
             {item.userId == props.userId ? <div className="acceopt-request"  onClick={deleteItem}>Delete Item</div> :
-                <div className="acceopt-request"  onClick={() => navigate("/items/borrow/" + itemId)}>Borrow</div>}
+                (item.status == "Available"? <div className="acceopt-request"  onClick={() => {navigate("/items/borrow/" + itemId)}}>Borrow</div> : <div>Unavailable</div>)}
         </div>
         <div>
             <h1>Reviews</h1>
