@@ -843,6 +843,7 @@ function App() {
                 <Route path="/logout" element={<Logout/>}/>
                 <Route path="/userreview/:userId" element={<NewUserReview userId={userId}/>}/>
                 <Route path="/itemreview/:itemId" element={<NewItemReviewForm userId={userId}/>}/>
+                <Route path="/blog" element={<Blog/>}/>
             </Routes>
             <div className="ads-container">
                 <Ad/></div>
