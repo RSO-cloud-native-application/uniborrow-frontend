@@ -56,7 +56,7 @@ function Chat(props) {
 
     return <div className="chat-wrp">
         <div className="chat">
-            <h1>Chat with {props.otherUserId}</h1>
+            <h1>Chat with  <UserLink userId={props.otherUserId}/></h1>
             {messages.map(message => <div
                 className={"message" + ((props.userId == message.userFromId) ? " my" : " his")}>{message.message}</div>)}
             <div className="form-input msg-input"><input className="msg-txt-input" type="text" value={newMessage}
@@ -119,6 +119,7 @@ function Item() {
             <div className="image-wrapper"><img src={item.uri}/></div>
             <div>{item.description}</div>
             <div>{item.status}</div>
+            <UserLink userId={item.userId}/>
             <div onClick={() => navigate("/items/borrow/" + itemId)}>Borrow</div>
         </div>
         <div>
@@ -212,6 +213,7 @@ function RequestPreview(props) {
             <div>{request.timestampStart.substr(0, 10)} - {request.timestampEnd.substr(0, 10)}</div>
         </div>
         <div>{request.price}</div>
+        <UserLink userId={props.request.userId}/>
         <div className="acceopt-request" onClick={() => navigate("/requests/accept/" + props.request.id)}>Accept
             Request
         </div>
@@ -224,7 +226,7 @@ function RequestList(props) {
     const navigate = useNavigate();
 
     useEffect(() => {
-        axios.get(REQUESTS_API).then(e => setRequests(e.data)).catch(e =>alert(e.toString()))
+        axios.get(REQUESTS_API).then(e => setRequests(e.data)).catch(e => alert(e.toString()))
     }, [])
 
     return <div className="requests-container"><h1>Requests</h1>
@@ -255,15 +257,15 @@ function BlogEntry(props) {
 }
 
 
-function Blog(){
+function Blog() {
     const [blogEntries, setBlogEntries] = useState([])
 
-    useEffect(()=>{
-        axios.get(BLOGS_API).then(e=>setBlogEntries(e.data)).catch(e=>alert(e.toString()))
+    useEffect(() => {
+        axios.get(BLOGS_API).then(e => setBlogEntries(e.data)).catch(e => alert(e.toString()))
     })
 
     return <div className="blog">
-        {blogEntries.map(entry=> <BlogEntry entry={entry}/>)}
+        {blogEntries.map(entry => <BlogEntry entry={entry}/>)}
     </div>
 
 }
@@ -347,6 +349,7 @@ function Loan(props) {
             <div>Period:{loan.startTime && loan.startTime.substr(0, 10)} - {loan.endTime && loan.endTime.substr(0, 10)}</div>
             <div>Price:{loan.price}EUR</div>
             <div>State:{loan.acceptedState}</div>
+            <div>With: <UserLink userId={getRightUserId()}/></div>
         </div>
         <div className="loan-info">
             Item Info
@@ -777,6 +780,42 @@ function TransactionsInfo(props) {
     </div>
 }
 
+function UserLink(props) {
+    const navigate = useNavigate()
+    const [username, setUserName] = useState("Loading...")
+    useEffect(() => {
+        axios.get(USERS_API + "/" + props.userId).then(e => setUserName(e.data.username)).catch(e => alert(e.toString()))
+    })
+
+    return <div onClick={() => navigate("/users/" + props.userId)}>{username}</div>
+}
+
+function OtherUserInfo(props) {
+    const {userId} = useParams()
+    const [user, setUser] = useState("")
+    const [reviews, setReviews] = useState([])
+
+    useEffect(() => {
+        axios.get(USERS_API + "/" + userId).then(e => setUser(e.data)).catch(e => alert(e.toString()))
+        axios.get(USER_REVIEWS_API + "?forUserId=" + userId).then(e => setReviews(e.data)).catch(e => alert(e.toString()))
+    })
+
+
+    return <div>
+        <div className="profile-wrapper">
+            <div className="profile-form">
+                <h1>User Information</h1>
+                <div className="profile-setting form-input">First Name: <div>{user.firstName}</div></div>
+                <div className="profile-setting form-input">Last Name: <div>{user.lastName}</div></div>
+                <div className="profile-setting form-input">Email: <div>{user.email}</div></div>
+
+            </div>
+            <h1>User Reviews</h1>
+            {reviews.map(review => <Review review={review}/>)}
+        </div>
+    </div>
+}
+
 
 function Profile(props) {
     return <div><UserInfo userId={props.userId}/><CashInfo userId={props.userId}/><TransactionsInfo
@@ -844,6 +883,7 @@ function App() {
                 <Route path="/userreview/:userId" element={<NewUserReview userId={userId}/>}/>
                 <Route path="/itemreview/:itemId" element={<NewItemReviewForm userId={userId}/>}/>
                 <Route path="/blog" element={<Blog/>}/>
+                <Route path="/users/:userId" element={<OtherUserInfo/>}/>
             </Routes>
             <div className="ads-container">
                 <Ad/></div>
