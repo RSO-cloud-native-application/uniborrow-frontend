@@ -56,7 +56,7 @@ function Chat(props) {
 
     return <div className="chat-wrp">
         <div className="chat">
-            <h1>Chat with  <UserLink userId={props.otherUserId}/></h1>
+            <h1>Chat with <UserLink userId={props.otherUserId}/></h1>
             {messages.map(message => <div
                 className={"message" + ((props.userId == message.userFromId) ? " my" : " his")}>{message.message}</div>)}
             <div className="form-input msg-input"><input className="msg-txt-input" type="text" value={newMessage}
@@ -257,15 +257,33 @@ function BlogEntry(props) {
 }
 
 
-function Blog() {
+function Blog(props) {
     const [blogEntries, setBlogEntries] = useState([])
+    const [newMessage, setNewMessage] = useState("")
+    const [title, setTitle] = useState("")
+    const navigate = useNavigate()
 
     useEffect(() => {
         axios.get(BLOGS_API).then(e => setBlogEntries(e.data)).catch(e => alert(e.toString()))
     }, [])
 
+    function sendMessage() {
+        axios.post(BLOGS_API, {
+            "text": newMessage,
+            "title": title,
+            "userId": props.userId
+        }).then(() => navigate(-1)).catch(er=>alert(er.toString()))
+    }
+
     return <div className="blog">
         {blogEntries.map(entry => <BlogEntry entry={entry}/>)}
+        <div className="form-input msg-input">Title:<input className="msg-txt-input" type="text" value={title}
+                                                           onChange={e => setTitle(e.target.value)}/>
+            <div className="form-input msg-input"><textarea className="msg-txt-input" type="text" value={newMessage}
+                                                            onChange={e => setNewMessage(e.target.value)}/>
+                <div className="button" onClick={sendMessage}>Send</div>
+            </div>
+        </div>
     </div>
 
 }
@@ -282,13 +300,7 @@ function ReviewList(props) {
     const [reviews, setReviews] = useState([])
 
     useEffect(() => {
-        axios.get(ITEM_REVIEWS_API + "?itemId=" + props.itemId).then(e => setReviews(e.data)).catch((e) => setReviews([{
-            "itemId": 2,
-            "itemReviewId": 1,
-            "message": "Zelo dober izdelek, priporočam.",
-            "stars": 5,
-            "userReviewerId": 1
-        }, {"itemId": 1, "itemReviewId": 2, "message": "Slabo ohranjeno.", "stars": 2, "userReviewerId": 1}]))
+        axios.get(ITEM_REVIEWS_API + "?itemId=" + props.itemId).then(e => setReviews(e.data)).catch((e) => alert(e.toString()))
     }, [])
 
     return <div className="reviews">
@@ -407,7 +419,7 @@ function CashInfo(props) {
     }
 
     function fetchData(currency) {
-        axios.get(CASH_API + "/" + props.userId + "?currency=" + currency).then(response => setCurrentCash(response.data.currentCash)).catch(e => setCurrentCash(150))
+        axios.get(CASH_API + "/" + props.userId + "?currency=" + currency).then(response => setCurrentCash(response.data.currentCash)).catch(e => alert(e.toString()))
     }
 
     async function setKurency(currency) {
@@ -882,7 +894,7 @@ function App() {
                 <Route path="/logout" element={<Logout/>}/>
                 <Route path="/userreview/:userId" element={<NewUserReview userId={userId}/>}/>
                 <Route path="/itemreview/:itemId" element={<NewItemReviewForm userId={userId}/>}/>
-                <Route path="/blog" element={<Blog/>}/>
+                <Route path="/blog" element={<Blog userId={userId}/>}/>
                 <Route path="/users/:userId" element={<OtherUserInfo/>}/>
             </Routes>
             <div className="ads-container">
