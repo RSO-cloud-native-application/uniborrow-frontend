@@ -226,7 +226,7 @@ function RequestList(props) {
     const navigate = useNavigate();
 
     useEffect(() => {
-        axios.get(REQUESTS_API).then(e => setRequests(e.data)).catch(e => alert(e.toString()))
+        axios.get(REQUESTS_API + "/active").then(e => setRequests(e.data)).catch(e => alert(e.toString()))
     }, [])
 
     return <div className="requests-container"><h1>Requests</h1>
@@ -815,6 +815,7 @@ function NewMessage(props) {
         }).catch(err => alert(err.toString()))
     }
     return <div className="write-blog-wrapper">
+        Send a message to the user
         <div className="form-input msg-input"><input className="msg-txt-input" type="text" value={newMessage}
                                                      onChange={e => setNewMessage(e.target.value)}/>
             <div className="button" onClick={sendMessage}>Send</div>
