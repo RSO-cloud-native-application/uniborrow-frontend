@@ -688,7 +688,7 @@ function AcceptRequestForm(props) {
         setPrice(request.price)
         setTitle(request.title)
         setUserTo(request.userId)
-        setRequest(true)
+        setRequestLoaded(true)
     }
 
     function addNewItem() {
