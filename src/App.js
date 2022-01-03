@@ -262,7 +262,7 @@ function Blog() {
 
     useEffect(() => {
         axios.get(BLOGS_API).then(e => setBlogEntries(e.data)).catch(e => alert(e.toString()))
-    })
+    }, [])
 
     return <div className="blog">
         {blogEntries.map(entry => <BlogEntry entry={entry}/>)}
@@ -784,8 +784,8 @@ function UserLink(props) {
     const navigate = useNavigate()
     const [username, setUserName] = useState("Loading...")
     useEffect(() => {
-        axios.get(USERS_API + "/" + props.userId).then(e => setUserName(e.data.username)).catch(e => alert(e.toString()))
-    })
+        axios.get(USERS_API + "/" + props.userId).then(e => setUserName(e.data.username)).catch(e => console.log(e.toString()))
+    }, [])
 
     return <div onClick={() => navigate("/users/" + props.userId)}>{username}</div>
 }
@@ -798,7 +798,7 @@ function OtherUserInfo(props) {
     useEffect(() => {
         axios.get(USERS_API + "/" + userId).then(e => setUser(e.data)).catch(e => alert(e.toString()))
         axios.get(USER_REVIEWS_API + "?forUserId=" + userId).then(e => setReviews(e.data)).catch(e => alert(e.toString()))
-    })
+    }, [])
 
 
     return <div>
